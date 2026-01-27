@@ -1,0 +1,10 @@
+export const THROTTLE_SHORT_TTL = 1000;
+export const THROTTLE_SHORT_LIMIT = 3;
+
+export const THROTTLE_LONG_TTL = 60000;
+export const THROTTLE_LONG_LIMIT = 100;
+
+export const THROTTLE_AUTH_TTL = 60000;
+export const THROTTLE_AUTH_REGISTER_LIMIT = 3;
+export const THROTTLE_AUTH_LOGIN_LIMIT = 5;
+export const THROTTLE_AUTH_FORGOT_PASSWORD_LIMIT = 3;

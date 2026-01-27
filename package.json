@@ -1,0 +1,42 @@
+{
+  "name": "monorepo-starter",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "setup": "yarn install && yarn env:copy && yarn db:up && yarn db:migrate && yarn db:generate",
+    "dev": "concurrently \"yarn dev:backend\" \"yarn dev:frontend\"",
+    "dev:backend": "yarn workspace backend dev",
+    "dev:frontend": "yarn workspace frontend dev",
+    "build": "yarn workspace backend build && yarn workspace frontend build",
+    "build:backend": "yarn workspace backend build",
+    "build:frontend": "yarn workspace frontend build",
+    "test": "yarn workspace backend test && yarn workspace frontend test",
+    "test:backend": "yarn workspace backend test",
+    "test:frontend": "yarn workspace frontend test",
+    "lint": "yarn workspace backend lint && yarn workspace frontend lint",
+    "lint:fix": "yarn workspace backend lint:fix && yarn workspace frontend lint:fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "prepare": "husky",
+    "env:copy": "node -e \"const fs=require('fs'); if(!fs.existsSync('.env')){fs.copyFileSync('.env.example','.env');console.log('.env created from .env.example')}else{console.log('.env already exists')}\"",
+    "db:up": "docker compose -f docker-compose.dev.yml up -d",
+    "db:down": "docker compose -f docker-compose.dev.yml down",
+    "db:migrate": "yarn workspace backend prisma:migrate",
+    "db:generate": "yarn workspace backend prisma:generate",
+    "db:seed": "yarn workspace backend prisma:seed",
+    "db:studio": "yarn workspace backend prisma:studio"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "concurrently": "^9.1.2",
+    "husky": "^9.1.7",
+    "prettier": "^3.5.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

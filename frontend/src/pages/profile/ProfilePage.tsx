@@ -1,73 +1,81 @@
-import { useState, useEffect, useRef } from 'react'
-import { useForm, Controller } from 'react-hook-form'
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import TextField from '@mui/material/TextField'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import Avatar from '@mui/material/Avatar'
-import InputAdornment from '@mui/material/InputAdornment'
-import IconButton from '@mui/material/IconButton'
-import Grid from '@mui/material/Grid'
-import Chip from '@mui/material/Chip'
-import Badge from '@mui/material/Badge'
-import CircularProgress from '@mui/material/CircularProgress'
-import { User, Mail, Save, Lock, Eye, EyeOff, KeyRound, Phone, Calendar, Download, Shield, Trash2, Camera, X } from 'lucide-react'
-import { useAuth } from '@/contexts/AuthContext'
-import { useToast } from '@/contexts/ToastContext'
-import { PhoneInput, PasswordStrengthIndicator, PageHeader, Modal } from '@/components'
-import api, { getUploadUrl } from '@/services/api'
-import { usersService } from '@/services/users.service'
-import { uploadService } from '@/services/upload.service'
+import { useState, useEffect, useRef } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Avatar from '@mui/material/Avatar';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
+import Grid from '@mui/material/Grid';
+import Chip from '@mui/material/Chip';
+import Badge from '@mui/material/Badge';
+import CircularProgress from '@mui/material/CircularProgress';
 import {
-  NAME_MIN_LENGTH,
-  VALIDATION_MESSAGES,
-  validatePasswordStrength,
-} from '@/constants/validation.constants'
-import { ROLES } from '@/constants/roles.constants'
-import { getInitials, formatDate } from '@/utils/string.utils'
+  User,
+  Mail,
+  Save,
+  Lock,
+  Eye,
+  EyeOff,
+  KeyRound,
+  Phone,
+  Calendar,
+  Download,
+  Shield,
+  Trash2,
+  Camera,
+  X,
+} from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
+import { PhoneInput, PasswordStrengthIndicator, PageHeader, Modal } from '@/components';
+import api, { getUploadUrl } from '@/services/api';
+import { usersService } from '@/services/users.service';
+import { uploadService } from '@/services/upload.service';
+import { ROLES } from '@/constants/roles.constants';
+import { getInitials, formatDate } from '@/utils/string.utils';
+import {
+  profileSchema,
+  changePasswordSchema,
+  type ProfileFormData,
+  type ChangePasswordFormData,
+} from '@/schemas';
 
-interface ProfileForm {
-  name: string
-  phone: string
-}
-
-interface PasswordForm {
-  currentPassword: string
-  newPassword: string
-  confirmPassword: string
-}
-
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
-const MAX_FILE_SIZE = 5 * 1024 * 1024
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 export default function ProfilePage() {
-  const { user, updateUser, logout } = useAuth()
-  const { showSuccess, showError } = useToast()
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isPasswordLoading, setIsPasswordLoading] = useState(false)
-  const [isExporting, setIsExporting] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
-  const [showNewPassword, setShowNewPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const { user, updateUser, logout } = useAuth();
+  const { showSuccess, showError } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register: registerProfile,
     control,
     handleSubmit: handleProfileSubmit,
     reset: resetProfile,
-    formState: { errors: profileErrors, isDirty: isProfileDirty },
-  } = useForm<ProfileForm>({
+    formState: { errors: profileErrors, isDirty: isProfileDirty, isValid: isProfileValid },
+  } = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema),
+    mode: 'onChange',
     defaultValues: {
       name: '',
       phone: '',
     },
-  })
+  });
 
   const {
     register: registerPassword,
@@ -75,144 +83,145 @@ export default function ProfilePage() {
     reset: resetPassword,
     watch,
     formState: { errors: passwordErrors, isValid: isPasswordValid },
-  } = useForm<PasswordForm>({
+  } = useForm<ChangePasswordFormData>({
+    resolver: zodResolver(changePasswordSchema),
     mode: 'onChange',
     defaultValues: {
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
     },
-  })
+  });
 
-  const newPassword = watch('newPassword')
+  const newPassword = watch('newPassword');
 
   useEffect(() => {
     if (user) {
       resetProfile({
         name: user.name,
         phone: user.phone || '',
-      })
+      });
     }
-  }, [user, resetProfile])
+  }, [user, resetProfile]);
 
-  const onProfileSubmit = async (data: ProfileForm) => {
-    setIsLoading(true)
+  const onProfileSubmit = async (data: ProfileFormData) => {
+    setIsLoading(true);
 
     try {
       const response = await api.patch(`/users/${user?.id}`, {
         name: data.name,
         phone: data.phone || null,
-      })
-      updateUser(response.data)
-      showSuccess('Perfil atualizado com sucesso!')
+      });
+      updateUser(response.data);
+      showSuccess('Perfil atualizado com sucesso!');
     } catch {
-      showError('Falha ao atualizar perfil. Tente novamente.')
+      showError('Falha ao atualizar perfil. Tente novamente.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-  const onPasswordSubmit = async (data: PasswordForm) => {
-    setIsPasswordLoading(true)
+  const onPasswordSubmit = async (data: ChangePasswordFormData) => {
+    setIsPasswordLoading(true);
 
     try {
       await api.post('/auth/change-password', {
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
-      })
-      showSuccess('Senha alterada com sucesso!')
-      resetPassword()
+      });
+      showSuccess('Senha alterada com sucesso!');
+      resetPassword();
     } catch {
-      showError('Falha ao alterar senha. Verifique sua senha atual.')
+      showError('Falha ao alterar senha. Verifique sua senha atual.');
     } finally {
-      setIsPasswordLoading(false)
+      setIsPasswordLoading(false);
     }
-  }
+  };
 
   const handleExportData = async () => {
-    setIsExporting(true)
+    setIsExporting(true);
 
     try {
-      const data = await usersService.exportMyData()
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `meus-dados-${new Date().toISOString().split('T')[0]}.json`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
-      showSuccess('Dados exportados com sucesso!')
+      const data = await usersService.exportMyData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `meus-dados-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showSuccess('Dados exportados com sucesso!');
     } catch {
-      showError('Falha ao exportar dados. Tente novamente.')
+      showError('Falha ao exportar dados. Tente novamente.');
     } finally {
-      setIsExporting(false)
+      setIsExporting(false);
     }
-  }
+  };
 
   const handleDeleteAccount = async () => {
-    setIsDeleting(true)
+    setIsDeleting(true);
 
     try {
-      await usersService.deleteMyAccount()
-      showSuccess('Conta excluída com sucesso.')
-      logout()
+      await usersService.deleteMyAccount();
+      showSuccess('Conta excluída com sucesso.');
+      logout();
     } catch {
-      showError('Falha ao excluir conta. Tente novamente.')
+      showError('Falha ao excluir conta. Tente novamente.');
     } finally {
-      setIsDeleting(false)
-      setShowDeleteModal(false)
+      setIsDeleting(false);
+      setShowDeleteModal(false);
     }
-  }
+  };
 
   const handleAvatarClick = () => {
-    fileInputRef.current?.click()
-  }
+    fileInputRef.current?.click();
+  };
 
   const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
+    const file = event.target.files?.[0];
+    if (!file) return;
 
     if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      showError('Formato inválido. Use JPG, PNG, GIF ou WebP.')
-      return
+      showError('Formato inválido. Use JPG, PNG, GIF ou WebP.');
+      return;
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      showError('Arquivo muito grande. Tamanho máximo: 5MB.')
-      return
+      showError('Arquivo muito grande. Tamanho máximo: 5MB.');
+      return;
     }
 
-    setIsUploadingAvatar(true)
+    setIsUploadingAvatar(true);
 
     try {
-      const response = await uploadService.uploadAvatar(file)
-      updateUser({ ...user!, avatarUrl: response.url })
-      showSuccess('Foto atualizada com sucesso!')
+      const response = await uploadService.uploadAvatar(file);
+      updateUser({ ...user!, avatarUrl: response.url });
+      showSuccess('Foto atualizada com sucesso!');
     } catch {
-      showError('Falha ao enviar foto. Tente novamente.')
+      showError('Falha ao enviar foto. Tente novamente.');
     } finally {
-      setIsUploadingAvatar(false)
+      setIsUploadingAvatar(false);
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = '';
       }
     }
-  }
+  };
 
   const handleRemoveAvatar = async () => {
-    setIsUploadingAvatar(true)
+    setIsUploadingAvatar(true);
 
     try {
-      await uploadService.removeAvatar()
-      updateUser({ ...user!, avatarUrl: null })
-      showSuccess('Foto removida com sucesso!')
+      await uploadService.removeAvatar();
+      updateUser({ ...user!, avatarUrl: null });
+      showSuccess('Foto removida com sucesso!');
     } catch {
-      showError('Falha ao remover foto. Tente novamente.')
+      showError('Falha ao remover foto. Tente novamente.');
     } finally {
-      setIsUploadingAvatar(false)
+      setIsUploadingAvatar(false);
     }
-  }
+  };
 
   return (
     <Box>
@@ -306,8 +315,10 @@ export default function ProfilePage() {
                   >
                     {isUploadingAvatar ? (
                       <CircularProgress size={32} color="inherit" />
+                    ) : user?.name ? (
+                      getInitials(user.name)
                     ) : (
-                      user?.name ? getInitials(user.name) : 'U'
+                      'U'
                     )}
                   </Avatar>
                 </Badge>
@@ -459,10 +470,7 @@ export default function ProfilePage() {
                       ),
                     },
                   }}
-                  {...registerProfile('name', {
-                    required: VALIDATION_MESSAGES.NAME_REQUIRED,
-                    minLength: { value: NAME_MIN_LENGTH, message: VALIDATION_MESSAGES.NAME_MIN },
-                  })}
+                  {...registerProfile('name')}
                 />
 
                 <Controller
@@ -475,6 +483,8 @@ export default function ProfilePage() {
                       value={field.value}
                       onAccept={value => field.onChange(value)}
                       onBlur={field.onBlur}
+                      error={Boolean(profileErrors.phone)}
+                      helperText={profileErrors.phone?.message}
                       sx={{ mb: 4 }}
                     />
                   )}
@@ -483,7 +493,7 @@ export default function ProfilePage() {
                 <Button
                   type="submit"
                   variant="contained"
-                  disabled={isLoading || !isProfileDirty}
+                  disabled={isLoading || !isProfileDirty || !isProfileValid}
                   startIcon={<Save size={18} />}
                   sx={{ borderRadius: 2, px: 3 }}
                 >
@@ -551,9 +561,7 @@ export default function ProfilePage() {
                       ),
                     },
                   }}
-                  {...registerPassword('currentPassword', {
-                    required: VALIDATION_MESSAGES.PASSWORD_CURRENT_REQUIRED,
-                  })}
+                  {...registerPassword('currentPassword')}
                 />
 
                 <TextField
@@ -584,10 +592,7 @@ export default function ProfilePage() {
                       ),
                     },
                   }}
-                  {...registerPassword('newPassword', {
-                    required: VALIDATION_MESSAGES.PASSWORD_REQUIRED,
-                    validate: validatePasswordStrength,
-                  })}
+                  {...registerPassword('newPassword')}
                 />
 
                 <PasswordStrengthIndicator password={newPassword || ''} sx={{ mb: 4 }} />
@@ -620,10 +625,7 @@ export default function ProfilePage() {
                       ),
                     },
                   }}
-                  {...registerPassword('confirmPassword', {
-                    required: VALIDATION_MESSAGES.PASSWORD_CONFIRM,
-                    validate: value => value === newPassword || VALIDATION_MESSAGES.PASSWORD_MISMATCH,
-                  })}
+                  {...registerPassword('confirmPassword')}
                 />
 
                 <Button
@@ -670,7 +672,8 @@ export default function ProfilePage() {
               </Box>
 
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                Em conformidade com a Lei Geral de Proteção de Dados (LGPD), você pode exportar todos os seus dados pessoais ou excluir sua conta permanentemente.
+                Em conformidade com a Lei Geral de Proteção de Dados (LGPD), você pode exportar
+                todos os seus dados pessoais ou excluir sua conta permanentemente.
               </Typography>
 
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
@@ -722,5 +725,5 @@ export default function ProfilePage() {
         </Box>
       </Modal>
     </Box>
-  )
+  );
 }

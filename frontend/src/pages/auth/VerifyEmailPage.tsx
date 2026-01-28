@@ -1,67 +1,71 @@
-import { useState, useEffect, useRef } from 'react'
-import { Link as RouterLink, useSearchParams } from 'react-router-dom'
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import CircularProgress from '@mui/material/CircularProgress'
-import Alert from '@mui/material/Alert'
-import { AlertTriangle } from 'lucide-react'
-import { useAuth } from '@/contexts/AuthContext'
-import { authService } from '@/services/auth.service'
-import { ROUTES } from '@/constants/routes.constants'
+import { useState, useEffect, useRef } from 'react';
+import { Link as RouterLink, useSearchParams } from 'react-router-dom';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
+import { AlertTriangle } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { authService } from '@/services/auth.service';
+import { ROUTES } from '@/constants/routes.constants';
 
-type VerifyStatus = 'validating' | 'verifying' | 'success' | 'error' | 'invalid-token'
+type VerifyStatus = 'validating' | 'verifying' | 'success' | 'error' | 'invalid-token';
 
 export default function VerifyEmailPage() {
-  const [searchParams] = useSearchParams()
-  const { user, isAuthenticated, logout } = useAuth()
-  const token = searchParams.get('token')
-  const [status, setStatus] = useState<VerifyStatus>('validating')
-  const [tokenEmail, setTokenEmail] = useState<string>('')
-  const verificationAttempted = useRef(false)
+  const [searchParams] = useSearchParams();
+  const { user, isAuthenticated, logout } = useAuth();
+  const token = searchParams.get('token');
+  const [status, setStatus] = useState<VerifyStatus>('validating');
+  const [tokenEmail, setTokenEmail] = useState<string>('');
+  const verificationAttempted = useRef(false);
 
-  const redirectRoute = isAuthenticated ? ROUTES.DASHBOARD : ROUTES.LOGIN
-  const redirectLabel = isAuthenticated ? 'Ir para Dashboard' : 'Fazer Login'
+  const redirectRoute = isAuthenticated ? ROUTES.DASHBOARD : ROUTES.LOGIN;
+  const redirectLabel = isAuthenticated ? 'Ir para Dashboard' : 'Fazer Login';
 
-  const isDifferentUser = isAuthenticated && tokenEmail && user?.email && !user.email.includes(tokenEmail.split('@')[0].replace(/\*/g, ''))
+  const isDifferentUser =
+    isAuthenticated &&
+    tokenEmail &&
+    user?.email &&
+    !user.email.includes(tokenEmail.split('@')[0].replace(/\*/g, ''));
 
   useEffect(() => {
     const processToken = async () => {
-      if (verificationAttempted.current) return
-      verificationAttempted.current = true
+      if (verificationAttempted.current) return;
+      verificationAttempted.current = true;
 
       if (!token) {
-        setStatus('invalid-token')
-        return
+        setStatus('invalid-token');
+        return;
       }
 
       try {
-        const validation = await authService.validateVerificationToken(token)
+        const validation = await authService.validateVerificationToken(token);
         if (!validation.valid) {
-          setStatus('invalid-token')
-          return
+          setStatus('invalid-token');
+          return;
         }
 
         if (validation.email) {
-          setTokenEmail(validation.email)
+          setTokenEmail(validation.email);
         }
 
-        setStatus('verifying')
-        await authService.verifyEmail(token)
-        setStatus('success')
+        setStatus('verifying');
+        await authService.verifyEmail(token);
+        setStatus('success');
       } catch {
-        setStatus('error')
+        setStatus('error');
       }
-    }
+    };
 
-    processToken()
-  }, [token])
+    processToken();
+  }, [token]);
 
   const handleLogout = async () => {
-    await logout()
-  }
+    await logout();
+  };
 
   const renderContent = () => {
     switch (status) {
@@ -79,7 +83,7 @@ export default function VerifyEmailPage() {
               </Typography>
             )}
           </>
-        )
+        );
 
       case 'success':
         return (
@@ -91,11 +95,9 @@ export default function VerifyEmailPage() {
               Sua conta foi ativada com sucesso.
             </Typography>
             {isDifferentUser && (
-              <Alert
-                severity="info"
-                sx={{ mb: 3, textAlign: 'left' }}
-              >
-                O email verificado foi <strong>{tokenEmail}</strong>. Você está logado como <strong>{user?.email}</strong>.
+              <Alert severity="info" sx={{ mb: 3, textAlign: 'left' }}>
+                O email verificado foi <strong>{tokenEmail}</strong>. Você está logado como{' '}
+                <strong>{user?.email}</strong>.
               </Alert>
             )}
             <Button
@@ -109,7 +111,7 @@ export default function VerifyEmailPage() {
               {redirectLabel}
             </Button>
           </>
-        )
+        );
 
       case 'error':
         return (
@@ -131,7 +133,7 @@ export default function VerifyEmailPage() {
               {isAuthenticated ? 'Ir para Dashboard' : 'Voltar para Login'}
             </Button>
           </>
-        )
+        );
 
       case 'invalid-token':
         return (
@@ -167,9 +169,9 @@ export default function VerifyEmailPage() {
               {isAuthenticated ? 'Ir para Dashboard' : 'Voltar para Login'}
             </Button>
           </>
-        )
+        );
     }
-  }
+  };
 
   return (
     <Box
@@ -199,5 +201,5 @@ export default function VerifyEmailPage() {
         </CardContent>
       </Card>
     </Box>
-  )
+  );
 }

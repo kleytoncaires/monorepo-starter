@@ -1,66 +1,58 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { Link as RouterLink } from 'react-router-dom'
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import TextField from '@mui/material/TextField'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import InputAdornment from '@mui/material/InputAdornment'
-import IconButton from '@mui/material/IconButton'
-import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react'
-import { useAuth } from '@/contexts/AuthContext'
-import { useToast } from '@/contexts/ToastContext'
-import { PasswordStrengthIndicator } from '@/components'
-import {
-  NAME_MIN_LENGTH,
-  EMAIL_PATTERN,
-  VALIDATION_MESSAGES,
-  validatePasswordStrength,
-} from '@/constants/validation.constants'
-import { ROUTES } from '@/constants/routes.constants'
-
-interface RegisterForm {
-  name: string
-  email: string
-  password: string
-  confirmPassword: string
-}
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Link as RouterLink } from 'react-router-dom';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
+import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
+import { PasswordStrengthIndicator } from '@/components';
+import { registerSchema, type RegisterFormData } from '@/schemas';
+import { ROUTES } from '@/constants/routes.constants';
 
 export default function RegisterPage() {
-  const { register: registerUser } = useAuth()
-  const { showError } = useToast()
-  const [isLoading, setIsLoading] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const { register: registerUser } = useAuth();
+  const { showError } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors, isValid },
-  } = useForm<RegisterForm>({ mode: 'onChange' })
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    mode: 'onChange',
+  });
 
-  const password = watch('password')
+  const password = watch('password');
 
-  const onSubmit = async (data: RegisterForm) => {
-    setIsLoading(true)
+  const onSubmit = async (data: RegisterFormData) => {
+    setIsLoading(true);
 
     try {
       await registerUser({
         name: data.name,
         email: data.email,
         password: data.password,
-      })
-      setIsSuccess(true)
+      });
+      setIsSuccess(true);
     } catch {
-      showError('Falha no cadastro. O email pode já estar em uso.')
+      showError('Falha no cadastro. O email pode já estar em uso.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   if (isSuccess) {
     return (
@@ -106,7 +98,7 @@ export default function RegisterPage() {
           </CardContent>
         </Card>
       </Box>
-    )
+    );
   }
 
   return (
@@ -158,10 +150,7 @@ export default function RegisterPage() {
                   ),
                 },
               }}
-              {...register('name', {
-                required: VALIDATION_MESSAGES.NAME_REQUIRED,
-                minLength: { value: NAME_MIN_LENGTH, message: VALIDATION_MESSAGES.NAME_MIN },
-              })}
+              {...register('name')}
             />
 
             <TextField
@@ -180,13 +169,7 @@ export default function RegisterPage() {
                   ),
                 },
               }}
-              {...register('email', {
-                required: VALIDATION_MESSAGES.EMAIL_REQUIRED,
-                pattern: {
-                  value: EMAIL_PATTERN,
-                  message: VALIDATION_MESSAGES.EMAIL_INVALID,
-                },
-              })}
+              {...register('email')}
             />
 
             <TextField
@@ -217,10 +200,7 @@ export default function RegisterPage() {
                   ),
                 },
               }}
-              {...register('password', {
-                required: VALIDATION_MESSAGES.PASSWORD_REQUIRED,
-                validate: validatePasswordStrength,
-              })}
+              {...register('password')}
             />
 
             <PasswordStrengthIndicator password={password || ''} />
@@ -253,10 +233,7 @@ export default function RegisterPage() {
                   ),
                 },
               }}
-              {...register('confirmPassword', {
-                required: VALIDATION_MESSAGES.PASSWORD_CONFIRM,
-                validate: value => value === password || VALIDATION_MESSAGES.PASSWORD_MISMATCH,
-              })}
+              {...register('confirmPassword')}
             />
 
             <Button
@@ -284,5 +261,5 @@ export default function RegisterPage() {
         </CardContent>
       </Card>
     </Box>
-  )
+  );
 }

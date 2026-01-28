@@ -1,72 +1,76 @@
-import { useState } from 'react'
-import { useForm, Controller } from 'react-hook-form'
-import { Link as RouterLink } from 'react-router-dom'
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import TextField from '@mui/material/TextField'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import InputAdornment from '@mui/material/InputAdornment'
-import IconButton from '@mui/material/IconButton'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Checkbox from '@mui/material/Checkbox'
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
-import { useAuth } from '@/contexts/AuthContext'
-import { useToast } from '@/contexts/ToastContext'
-import { authService } from '@/services/auth.service'
-import { LoginCredentials } from '@/types/auth'
-import { EMAIL_PATTERN, VALIDATION_MESSAGES } from '@/constants/validation.constants'
-import { ROUTES } from '@/constants/routes.constants'
-import { AxiosError } from 'axios'
+import { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Link as RouterLink } from 'react-router-dom';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
+import { authService } from '@/services/auth.service';
+import { loginSchema, type LoginFormData } from '@/schemas';
+import { ROUTES } from '@/constants/routes.constants';
+import { AxiosError } from 'axios';
 
 export default function LoginPage() {
-  const { login } = useAuth()
-  const { showError, showSuccess } = useToast()
-  const [isLoading, setIsLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [emailNotVerified, setEmailNotVerified] = useState<string | null>(null)
-  const [isResending, setIsResending] = useState(false)
+  const { login } = useAuth();
+  const { showError, showSuccess } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [emailNotVerified, setEmailNotVerified] = useState<string | null>(null);
+  const [isResending, setIsResending] = useState(false);
 
   const {
     register,
     handleSubmit,
     control,
     formState: { errors, isValid },
-  } = useForm<LoginCredentials>({ mode: 'onChange', defaultValues: { rememberMe: false } })
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    mode: 'onChange',
+    defaultValues: { rememberMe: false },
+  });
 
-  const onSubmit = async (data: LoginCredentials) => {
-    setIsLoading(true)
-    setEmailNotVerified(null)
+  const onSubmit = async (data: LoginFormData) => {
+    setIsLoading(true);
+    setEmailNotVerified(null);
 
     try {
-      await login(data)
+      await login(data);
     } catch (error) {
-      const axiosError = error as AxiosError<{ message: string }>
+      const axiosError = error as AxiosError<{ message: string }>;
       if (axiosError.response?.data?.message === 'Email not verified') {
-        setEmailNotVerified(data.email)
+        setEmailNotVerified(data.email);
       } else {
-        showError('Email ou senha inválidos')
+        showError('Email ou senha inválidos');
       }
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleResendVerification = async () => {
-    if (!emailNotVerified) return
+    if (!emailNotVerified) return;
 
-    setIsResending(true)
+    setIsResending(true);
     try {
-      await authService.resendVerificationEmail(emailNotVerified)
-      showSuccess('Email de verificação reenviado!')
-      setEmailNotVerified(null)
+      await authService.resendVerificationEmail(emailNotVerified);
+      showSuccess('Email de verificação reenviado!');
+      setEmailNotVerified(null);
     } catch {
-      showError('Erro ao reenviar email')
+      showError('Erro ao reenviar email');
     } finally {
-      setIsResending(false)
+      setIsResending(false);
     }
-  }
+  };
 
   return (
     <Box
@@ -153,13 +157,7 @@ export default function LoginPage() {
                   ),
                 },
               }}
-              {...register('email', {
-                required: VALIDATION_MESSAGES.EMAIL_REQUIRED,
-                pattern: {
-                  value: EMAIL_PATTERN,
-                  message: VALIDATION_MESSAGES.EMAIL_INVALID,
-                },
-              })}
+              {...register('email')}
             />
 
             <TextField
@@ -190,9 +188,7 @@ export default function LoginPage() {
                   ),
                 },
               }}
-              {...register('password', {
-                required: VALIDATION_MESSAGES.PASSWORD_REQUIRED,
-              })}
+              {...register('password')}
             />
 
             <Controller
@@ -200,13 +196,7 @@ export default function LoginPage() {
               control={control}
               render={({ field }) => (
                 <FormControlLabel
-                  control={
-                    <Checkbox
-                      {...field}
-                      checked={field.value ?? false}
-                      color="primary"
-                    />
-                  }
+                  control={<Checkbox {...field} checked={field.value ?? false} color="primary" />}
                   label="Lembrar de mim"
                   sx={{ mt: 1 }}
                 />
@@ -249,5 +239,5 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </Box>
-  )
+  );
 }

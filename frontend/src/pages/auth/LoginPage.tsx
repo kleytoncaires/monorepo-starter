@@ -145,6 +145,7 @@ export default function LoginPage() {
               fullWidth
               label="Email"
               type="email"
+              autoComplete="email"
               margin="normal"
               error={Boolean(errors.email)}
               helperText={errors.email?.message}

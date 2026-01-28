@@ -138,6 +138,7 @@ export default function RegisterPage() {
             <TextField
               fullWidth
               label="Nome"
+              autoComplete="name"
               margin="normal"
               error={Boolean(errors.name)}
               helperText={errors.name?.message}
@@ -157,6 +158,7 @@ export default function RegisterPage() {
               fullWidth
               label="Email"
               type="email"
+              autoComplete="email"
               margin="normal"
               error={Boolean(errors.email)}
               helperText={errors.email?.message}

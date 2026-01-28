@@ -23,6 +23,14 @@ Monorepo full-stack com NestJS no backend e React no frontend.
 - React Hook Form
 - TanStack React Query
 
+## Pré-requisitos
+
+- **Node.js** >= 20
+- **Yarn** (v1 ou v4)
+- **Docker Desktop** - deve estar **rodando** antes de executar comandos Docker
+
+> ⚠️ No Windows/Mac, abra o Docker Desktop e aguarde o ícone ficar verde antes de rodar `yarn setup` ou `yarn db:up`.
+
 ## Início Rápido
 
 ```bash

@@ -209,6 +209,24 @@ export default function ResetPasswordPage() {
           )}
 
           <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+            <input
+              type="email"
+              name="username"
+              autoComplete="username"
+              value={tokenEmail}
+              readOnly
+              style={{
+                border: 0,
+                clip: 'rect(0, 0, 0, 0)',
+                height: 1,
+                margin: -1,
+                overflow: 'hidden',
+                padding: 0,
+                position: 'absolute',
+                whiteSpace: 'nowrap',
+                width: 1,
+              }}
+            />
             <TextField
               fullWidth
               label="Nova Senha"

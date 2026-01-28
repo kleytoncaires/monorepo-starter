@@ -533,6 +533,24 @@ export default function ProfilePage() {
               </Box>
 
               <Box component="form" onSubmit={handlePasswordSubmit(onPasswordSubmit)}>
+                <input
+                  type="email"
+                  name="username"
+                  autoComplete="username"
+                  value={user?.email || ''}
+                  readOnly
+                  style={{
+                    border: 0,
+                    clip: 'rect(0, 0, 0, 0)',
+                    height: 1,
+                    margin: -1,
+                    overflow: 'hidden',
+                    padding: 0,
+                    position: 'absolute',
+                    whiteSpace: 'nowrap',
+                    width: 1,
+                  }}
+                />
                 <TextField
                   fullWidth
                   label="Senha Atual"

@@ -21,7 +21,7 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const SESSION_CHECK_INTERVAL = 60 * 1000;
+const SESSION_CHECK_INTERVAL = 30 * 1000;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
@@ -80,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
+    checkSessionValidity();
     const intervalId = setInterval(checkSessionValidity, SESSION_CHECK_INTERVAL);
     return () => clearInterval(intervalId);
   }, [state.isAuthenticated, navigate]);

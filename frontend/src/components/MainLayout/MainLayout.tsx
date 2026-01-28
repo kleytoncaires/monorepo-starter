@@ -89,6 +89,7 @@ export default function MainLayout() {
   const { data: unreadCount } = useQuery({
     queryKey: ['notifications-unread-count'],
     queryFn: notificationsService.getUnreadCount,
+    enabled: Boolean(user),
     refetchInterval: 30000,
   });
 

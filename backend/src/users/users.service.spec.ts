@@ -123,7 +123,12 @@ describe('UsersService', () => {
       prismaService.user.findUnique.mockResolvedValue(mockUser);
       prismaService.user.update.mockResolvedValue({ ...mockUser, name: 'Updated Name' });
 
-      const result = await service.update('user-id-123', { name: 'Updated Name' }, 'user-id-123', 'USER');
+      const result = await service.update(
+        'user-id-123',
+        { name: 'Updated Name' },
+        'user-id-123',
+        'USER',
+      );
 
       expect(result.name).toBe('Updated Name');
     });

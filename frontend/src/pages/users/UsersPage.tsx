@@ -1,58 +1,75 @@
-import { useState } from 'react'
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
-import Tooltip from '@mui/material/Tooltip'
-import TextField from '@mui/material/TextField'
-import InputAdornment from '@mui/material/InputAdornment'
-import Alert from '@mui/material/Alert'
-import Avatar from '@mui/material/Avatar'
-import Switch from '@mui/material/Switch'
-import MenuItem from '@mui/material/MenuItem'
-import useMediaQuery from '@mui/material/useMediaQuery'
-import { useTheme } from '@mui/material/styles'
-import { Users, Search, Trash2, Pencil, UserX } from 'lucide-react'
-import { useAuth } from '@/contexts/AuthContext'
-import { ROLES, Role } from '@/constants/roles.constants'
-import { getInitials, formatDate } from '@/utils/string.utils'
-import { useUsers } from '@/hooks/useUsers'
-import { useDebounce } from '@/hooks/useDebounce'
-import { PageHeader, Modal, ConfirmModal, DataTable, TableSkeleton, EmptyState, Pagination, type Column } from '@/components'
-import type { User } from '@/types/auth'
+import { useState } from 'react';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
+import Alert from '@mui/material/Alert';
+import Avatar from '@mui/material/Avatar';
+import Switch from '@mui/material/Switch';
+import MenuItem from '@mui/material/MenuItem';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
+import { Users, Search, Trash2, Pencil, UserX, Crown } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { ROLES, Role } from '@/constants/roles.constants';
+import { getInitials, formatDate } from '@/utils/string.utils';
+import { getUploadUrl } from '@/services/api';
+import { useUsers } from '@/hooks/useUsers';
+import { useDebounce } from '@/hooks/useDebounce';
+import {
+  PageHeader,
+  Modal,
+  ConfirmModal,
+  DataTable,
+  TableSkeleton,
+  EmptyState,
+  Pagination,
+  type Column,
+} from '@/components';
+import type { User } from '@/types/auth';
 
 interface EditUserForm {
-  name: string
-  role: Role
-  isActive: boolean
+  name: string;
+  role: Role;
+  isActive: boolean;
 }
 
 export default function UsersPage() {
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-  const { user: currentUser } = useAuth()
-  const [search, setSearch] = useState('')
-  const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(10)
-  const debouncedSearch = useDebounce(search, 300)
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { user: currentUser } = useAuth();
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const debouncedSearch = useDebounce(search, 300);
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; user: User | null }>({
     open: false,
     user: null,
-  })
+  });
   const [editDialog, setEditDialog] = useState<{ open: boolean; user: User | null }>({
     open: false,
     user: null,
-  })
+  });
   const [toggleDialog, setToggleDialog] = useState<{ open: boolean; user: User | null }>({
     open: false,
     user: null,
-  })
+  });
+  const [transferMasterDialog, setTransferMasterDialog] = useState<{
+    open: boolean;
+    user: User | null;
+  }>({
+    open: false,
+    user: null,
+  });
   const [editForm, setEditForm] = useState<EditUserForm>({
     name: '',
     role: ROLES.USER,
     isActive: true,
-  })
+  });
 
   const {
     users,
@@ -65,67 +82,86 @@ export default function UsersPage() {
     isUpdating,
     toggleStatus,
     isTogglingStatus,
-  } = useUsers({ page, limit, search: debouncedSearch || undefined, sortBy: 'name', sortOrder: 'asc' })
+    transferMaster,
+    isTransferringMaster,
+  } = useUsers({
+    page,
+    limit,
+    search: debouncedSearch || undefined,
+    sortBy: 'name',
+    sortOrder: 'asc',
+  });
 
   const handlePageChange = (newPage: number) => {
-    setPage(newPage)
-  }
+    setPage(newPage);
+  };
 
   const handleLimitChange = (newLimit: number) => {
-    setLimit(newLimit)
-    setPage(1)
-  }
+    setLimit(newLimit);
+    setPage(1);
+  };
 
   const handleSearchChange = (value: string) => {
-    setSearch(value)
-    setPage(1)
-  }
+    setSearch(value);
+    setPage(1);
+  };
 
   const handleDeleteClick = (user: User) => {
-    if (currentUser && user.id === currentUser.id) return
-    setDeleteDialog({ open: true, user })
-  }
+    if (currentUser && user.id === currentUser.id) return;
+    setDeleteDialog({ open: true, user });
+  };
 
   const handleDeleteConfirm = () => {
-    if (!deleteDialog.user) return
+    if (!deleteDialog.user) return;
     deleteUser(deleteDialog.user.id, {
       onSuccess: () => setDeleteDialog({ open: false, user: null }),
-    })
-  }
+    });
+  };
 
   const handleEditClick = (user: User) => {
     setEditForm({
       name: user.name,
       role: user.role,
       isActive: user.isActive,
-    })
-    setEditDialog({ open: true, user })
-  }
+    });
+    setEditDialog({ open: true, user });
+  };
 
   const handleEditSave = () => {
-    if (!editDialog.user) return
+    if (!editDialog.user) return;
     updateUser(
       { id: editDialog.user.id, data: editForm },
-      { onSuccess: () => setEditDialog({ open: false, user: null }) }
-    )
-  }
+      { onSuccess: () => setEditDialog({ open: false, user: null }) },
+    );
+  };
 
   const handleToggleStatus = (user: User) => {
-    if (currentUser && user.id === currentUser.id) return
+    if (currentUser && user.id === currentUser.id) return;
     if (user.isActive) {
-      setToggleDialog({ open: true, user })
+      setToggleDialog({ open: true, user });
     } else {
-      toggleStatus({ id: user.id, isActive: true })
+      toggleStatus({ id: user.id, isActive: true });
     }
-  }
+  };
 
   const handleToggleConfirm = () => {
-    if (!toggleDialog.user) return
+    if (!toggleDialog.user) return;
     toggleStatus(
       { id: toggleDialog.user.id, isActive: false },
-      { onSuccess: () => setToggleDialog({ open: false, user: null }) }
-    )
-  }
+      { onSuccess: () => setToggleDialog({ open: false, user: null }) },
+    );
+  };
+
+  const handleTransferMasterClick = (user: User) => {
+    setTransferMasterDialog({ open: true, user });
+  };
+
+  const handleTransferMasterConfirm = () => {
+    if (!transferMasterDialog.user) return;
+    transferMaster(transferMasterDialog.user.id, {
+      onSuccess: () => setTransferMasterDialog({ open: false, user: null }),
+    });
+  };
 
   const columns: Column<User>[] = [
     {
@@ -134,6 +170,7 @@ export default function UsersPage() {
       render: user => (
         <Box sx={{ alignItems: 'center', display: 'flex', gap: 2 }}>
           <Avatar
+            src={getUploadUrl(user.avatarUrl)}
             sx={{
               bgcolor: 'primary.main',
               color: 'common.white',
@@ -160,7 +197,7 @@ export default function UsersPage() {
       key: 'role',
       label: 'Função',
       render: user => {
-        const isAdmin = user.role === ROLES.ADMIN
+        const isAdmin = user.role === ROLES.ADMIN;
         return (
           <Box
             sx={{
@@ -183,14 +220,14 @@ export default function UsersPage() {
               {isAdmin ? 'Admin' : 'Usuário'}
             </Typography>
           </Box>
-        )
+        );
       },
     },
     {
       key: 'status',
       label: 'Status',
       render: user => {
-        const isCurrentUser = currentUser?.id === user.id
+        const isCurrentUser = currentUser?.id === user.id;
         return (
           <Box sx={{ alignItems: 'center', display: 'flex', gap: 0.5 }}>
             <Tooltip
@@ -220,7 +257,7 @@ export default function UsersPage() {
               {user.isActive ? 'Ativo' : 'Inativo'}
             </Typography>
           </Box>
-        )
+        );
       },
     },
     {
@@ -236,9 +273,11 @@ export default function UsersPage() {
       key: 'actions',
       label: '',
       align: 'right',
-      width: 80,
+      width: 120,
       render: user => {
-        const isCurrentUser = currentUser?.id === user.id
+        const isCurrentUser = currentUser?.id === user.id;
+        const canTransferMaster =
+          currentUser?.isMaster && user.role === ROLES.ADMIN && !isCurrentUser;
         return (
           <Box
             sx={{
@@ -247,26 +286,48 @@ export default function UsersPage() {
               justifyContent: 'flex-end',
             }}
           >
+            {canTransferMaster && (
+              <Tooltip title="Transferir Master">
+                <IconButton
+                  size="small"
+                  onClick={e => {
+                    e.stopPropagation();
+                    handleTransferMasterClick(user);
+                  }}
+                  sx={{ color: 'warning.main' }}
+                >
+                  <Crown size={16} />
+                </IconButton>
+              </Tooltip>
+            )}
             <Tooltip title="Editar">
               <IconButton
                 size="small"
                 onClick={e => {
-                  e.stopPropagation()
-                  handleEditClick(user)
+                  e.stopPropagation();
+                  handleEditClick(user);
                 }}
                 sx={{ color: 'text.secondary' }}
               >
                 <Pencil size={16} />
               </IconButton>
             </Tooltip>
-            <Tooltip title={isCurrentUser ? 'Você não pode excluir sua própria conta' : 'Excluir'}>
+            <Tooltip
+              title={
+                isCurrentUser
+                  ? 'Você não pode excluir sua própria conta'
+                  : user.isMaster
+                    ? 'Não é possível excluir o master'
+                    : 'Excluir'
+              }
+            >
               <span>
                 <IconButton
                   size="small"
-                  disabled={isCurrentUser}
+                  disabled={isCurrentUser || user.isMaster}
                   onClick={e => {
-                    e.stopPropagation()
-                    handleDeleteClick(user)
+                    e.stopPropagation();
+                    handleDeleteClick(user);
                   }}
                   sx={{
                     color: 'text.secondary',
@@ -279,10 +340,10 @@ export default function UsersPage() {
               </span>
             </Tooltip>
           </Box>
-        )
+        );
       },
     },
-  ]
+  ];
 
   if (isLoading) {
     return (
@@ -294,11 +355,11 @@ export default function UsersPage() {
           </CardContent>
         </Card>
       </Box>
-    )
+    );
   }
 
   const renderMobileCard = (user: User) => {
-    const isCurrentUser = currentUser?.id === user.id
+    const isCurrentUser = currentUser?.id === user.id;
 
     return (
       <Box
@@ -313,6 +374,7 @@ export default function UsersPage() {
       >
         <Box sx={{ alignItems: 'flex-start', display: 'flex', gap: 2 }}>
           <Avatar
+            src={getUploadUrl(user.avatarUrl)}
             sx={{
               bgcolor: 'action.selected',
               color: 'text.secondary',
@@ -385,8 +447,8 @@ export default function UsersPage() {
           </Box>
         </Box>
       </Box>
-    )
-  }
+    );
+  };
 
   return (
     <Box>
@@ -423,9 +485,7 @@ export default function UsersPage() {
               icon={UserX}
               title={debouncedSearch ? 'Nenhum usuário encontrado' : 'Nenhum usuário cadastrado'}
               description={
-                debouncedSearch
-                  ? 'Tente buscar por outro termo'
-                  : 'Adicione usuários para começar'
+                debouncedSearch ? 'Tente buscar por outro termo' : 'Adicione usuários para começar'
               }
             />
           ) : isMobile ? (
@@ -571,6 +631,24 @@ export default function UsersPage() {
           </Box>
         </Box>
       </Modal>
+
+      <ConfirmModal
+        open={transferMasterDialog.open}
+        onClose={() => setTransferMasterDialog({ open: false, user: null })}
+        onConfirm={handleTransferMasterConfirm}
+        title="Transferir Master"
+        subtitle="Esta ação não pode ser desfeita"
+        icon={Crown}
+        message={
+          <>
+            Tem certeza que deseja transferir o status de master para{' '}
+            <strong>{transferMasterDialog.user?.name}</strong>? Você perderá os privilégios de
+            master.
+          </>
+        }
+        confirmText={isTransferringMaster ? 'Transferindo...' : 'Transferir'}
+        loading={isTransferringMaster}
+      />
     </Box>
-  )
+  );
 }

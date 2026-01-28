@@ -1,15 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
+import { AUTH_ERROR_MESSAGES } from '../common/constants';
+import {
+  PaginatedResponse,
+  PaginationQueryDto,
+  createPaginationMeta,
+} from '../common/dto/pagination.dto';
 import { PrismaService } from '../config/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PublicUser } from './types/user.types';
-import { AUTH_ERROR_MESSAGES } from '../common/constants';
-import {
-  PaginationQueryDto,
-  PaginatedResponse,
-  createPaginationMeta,
-} from '../common/dto/pagination.dto';
 
 const USER_SELECT = {
   id: true,
@@ -18,6 +18,7 @@ const USER_SELECT = {
   phone: true,
   avatarUrl: true,
   role: true,
+  isMaster: true,
   isActive: true,
   createdAt: true,
 };
@@ -91,19 +92,86 @@ export class UsersService {
     });
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<PublicUser> {
-    await this.findById(id);
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    currentUserId: string,
+    currentUserRole: string,
+  ): Promise<PublicUser> {
+    const targetUser = await this.findById(id);
+    const isUpdatingSelf = id === currentUserId;
+    const isAdmin = currentUserRole === 'ADMIN';
 
-    return this.prisma.user.update({
+    if (targetUser.isMaster) {
+      if (updateUserDto.role !== undefined && updateUserDto.role !== targetUser.role) {
+        throw new ForbiddenException('Não é possível alterar a role do usuário master');
+      }
+      if (updateUserDto.isActive === false) {
+        throw new ForbiddenException('Não é possível desativar o usuário master');
+      }
+    }
+
+    if (!isAdmin) {
+      if (!isUpdatingSelf) {
+        throw new ForbiddenException('Você só pode editar seu próprio perfil');
+      }
+      delete updateUserDto.role;
+      delete updateUserDto.isActive;
+    }
+
+    if (
+      isUpdatingSelf &&
+      updateUserDto.role !== undefined &&
+      updateUserDto.role !== targetUser.role
+    ) {
+      throw new ForbiddenException('Você não pode alterar sua própria role');
+    }
+
+    const roleChanged = updateUserDto.role !== undefined && updateUserDto.role !== targetUser.role;
+    const deactivated = updateUserDto.isActive === false && targetUser.isActive === true;
+
+    const updatedUser = await this.prisma.user.update({
       where: { id },
       data: updateUserDto,
       select: USER_SELECT,
     });
+
+    if (roleChanged || deactivated) {
+      await this.prisma.refreshToken.deleteMany({ where: { userId: id } });
+    }
+
+    return updatedUser;
   }
 
   async remove(id: string): Promise<void> {
-    await this.findById(id);
+    const user = await this.findById(id);
+
+    if (user.isMaster) {
+      throw new ForbiddenException('Não é possível excluir o usuário master');
+    }
+
     await this.prisma.user.delete({ where: { id } });
+  }
+
+  async transferMaster(currentMasterId: string, newMasterId: string): Promise<PublicUser> {
+    const newMaster = await this.findById(newMasterId);
+
+    if (newMaster.role !== 'ADMIN') {
+      throw new ForbiddenException('O novo master deve ser um administrador');
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: currentMasterId },
+        data: { isMaster: false },
+      }),
+      this.prisma.user.update({
+        where: { id: newMasterId },
+        data: { isMaster: true },
+      }),
+    ]);
+
+    return this.findById(newMasterId);
   }
 
   async deleteOwnAccount(userId: string): Promise<void> {

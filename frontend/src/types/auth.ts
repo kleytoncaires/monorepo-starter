@@ -7,6 +7,7 @@ export interface User {
   phone?: string;
   avatarUrl?: string | null;
   role: Role;
+  isMaster: boolean;
   isActive: boolean;
   createdAt: string;
 }

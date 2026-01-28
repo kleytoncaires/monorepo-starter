@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, MinLength, MaxLength, IsOptional, IsBoolean, Matches, IsEnum } from 'class-validator';
+import {
+  IsString,
+  MinLength,
+  MaxLength,
+  IsOptional,
+  IsBoolean,
+  Matches,
+  IsEnum,
+} from 'class-validator';
 import { Role } from '@prisma/client';
 
 const PHONE_PATTERN = /^\(\d{2}\) \d{4,5}-\d{4}$/;

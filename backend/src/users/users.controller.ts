@@ -1,4 +1,16 @@
-import { Controller, Get, Body, Patch, Param, Delete, UseGuards, Query, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+  HttpCode,
+  HttpStatus,
+  ForbiddenException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -61,9 +73,14 @@ export class UsersController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update user' })
   @ApiResponse({ status: 200, description: 'User updated' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): Promise<PublicUser> {
-    return this.usersService.update(id, updateUserDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() currentUser: PublicUser,
+  ): Promise<PublicUser> {
+    return this.usersService.update(id, updateUserDto, currentUser.id, currentUser.role);
   }
 
   @Delete(':id')
@@ -74,5 +91,21 @@ export class UsersController {
   @ApiResponse({ status: 404, description: 'User not found' })
   remove(@Param('id') id: string): Promise<void> {
     return this.usersService.remove(id);
+  }
+
+  @Patch(':id/transfer-master')
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Transfer master status to another admin (Master only)' })
+  @ApiResponse({ status: 200, description: 'Master transferred' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Only master can transfer' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  transferMaster(
+    @Param('id') newMasterId: string,
+    @CurrentUser() currentUser: PublicUser,
+  ): Promise<PublicUser> {
+    if (!currentUser.isMaster) {
+      throw new ForbiddenException('Apenas o master pode transferir o status');
+    }
+    return this.usersService.transferMaster(currentUser.id, newMasterId);
   }
 }

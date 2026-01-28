@@ -10,6 +10,7 @@ CREATE TABLE "users" (
     "phone" TEXT,
     "avatarUrl" TEXT,
     "role" "Role" NOT NULL DEFAULT 'USER',
+    "isMaster" BOOLEAN NOT NULL DEFAULT false,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "emailVerified" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

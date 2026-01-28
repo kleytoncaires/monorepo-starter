@@ -30,4 +30,9 @@ export const usersService = {
   deleteMyAccount: async (): Promise<void> => {
     await api.delete('/users/me');
   },
+
+  transferMaster: async (newMasterId: string): Promise<User> => {
+    const response = await api.patch(`/users/${newMasterId}/transfer-master`);
+    return response.data;
+  },
 };

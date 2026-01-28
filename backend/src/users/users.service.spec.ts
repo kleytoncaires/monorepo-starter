@@ -14,6 +14,9 @@ describe('UsersService', () => {
       update: jest.Mock;
       delete: jest.Mock;
     };
+    refreshToken: {
+      deleteMany: jest.Mock;
+    };
   };
 
   const mockUser = {
@@ -22,7 +25,9 @@ describe('UsersService', () => {
     password: 'hashed-password',
     name: 'Test User',
     phone: null,
+    avatarUrl: null,
     role: Role.USER,
+    isMaster: false,
     isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -41,6 +46,9 @@ describe('UsersService', () => {
               findUnique: jest.fn(),
               update: jest.fn(),
               delete: jest.fn(),
+            },
+            refreshToken: {
+              deleteMany: jest.fn(),
             },
           },
         },
@@ -115,7 +123,7 @@ describe('UsersService', () => {
       prismaService.user.findUnique.mockResolvedValue(mockUser);
       prismaService.user.update.mockResolvedValue({ ...mockUser, name: 'Updated Name' });
 
-      const result = await service.update('user-id-123', { name: 'Updated Name' });
+      const result = await service.update('user-id-123', { name: 'Updated Name' }, 'user-id-123', 'USER');
 
       expect(result.name).toBe('Updated Name');
     });
@@ -123,7 +131,9 @@ describe('UsersService', () => {
     it('should throw NotFoundException if user not found', async () => {
       prismaService.user.findUnique.mockResolvedValue(null);
 
-      await expect(service.update('non-existent-id', { name: 'New Name' })).rejects.toThrow(NotFoundException);
+      await expect(
+        service.update('non-existent-id', { name: 'New Name' }, 'admin-id', 'ADMIN'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 

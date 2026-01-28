@@ -1,4 +1,15 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Req, Get, Delete, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+  Req,
+  Get,
+  Delete,
+  Param,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
@@ -152,6 +163,14 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'List of active sessions' })
   async getSessions(@CurrentUser() user: { id: string }) {
     return this.authService.getSessions(user.id);
+  }
+
+  @Post('sessions/check')
+  @ApiOperation({ summary: 'Check if refresh token is still valid' })
+  @ApiResponse({ status: 200, description: 'Session validity status' })
+  async checkSession(@Body() body: RefreshTokenDto): Promise<{ valid: boolean }> {
+    const valid = await this.authService.isSessionValid(body.refreshToken);
+    return { valid };
   }
 
   @Delete('sessions/:id')

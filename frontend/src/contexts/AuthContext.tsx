@@ -1,4 +1,12 @@
-import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  ReactNode,
+} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, LoginCredentials, RegisterCredentials, AuthState } from '@/types/auth';
 import { authService } from '@/services/auth.service';
@@ -12,6 +20,8 @@ interface AuthContextType extends AuthState {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const SESSION_CHECK_INTERVAL = 60 * 1000;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
@@ -43,6 +53,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     authCheckAttempted.current = true;
     checkAuth();
   }, [checkAuth]);
+
+  useEffect(() => {
+    const handleTokenRefreshed = () => {
+      checkAuth();
+    };
+
+    window.addEventListener('auth:token-refreshed', handleTokenRefreshed);
+    return () => {
+      window.removeEventListener('auth:token-refreshed', handleTokenRefreshed);
+    };
+  }, [checkAuth]);
+
+  useEffect(() => {
+    if (!state.isAuthenticated) return;
+
+    const checkSessionValidity = async () => {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (!refreshToken) return;
+
+      const isValid = await authService.checkSession(refreshToken);
+      if (!isValid) {
+        authService.clearTokens();
+        setState({ user: null, isAuthenticated: false, isLoading: false });
+        navigate(ROUTES.LOGIN);
+      }
+    };
+
+    const intervalId = setInterval(checkSessionValidity, SESSION_CHECK_INTERVAL);
+    return () => clearInterval(intervalId);
+  }, [state.isAuthenticated, navigate]);
 
   const login = async (credentials: LoginCredentials) => {
     const tokens = await authService.login(credentials);

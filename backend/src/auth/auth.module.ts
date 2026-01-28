@@ -20,7 +20,8 @@ const DEFAULT_JWT_EXPIRES_IN = '15m' as JwtSignOptions['expiresIn'];
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: (configService.get<string>('JWT_EXPIRES_IN') || DEFAULT_JWT_EXPIRES_IN) as JwtSignOptions['expiresIn'],
+          expiresIn: (configService.get<string>('JWT_EXPIRES_IN') ||
+            DEFAULT_JWT_EXPIRES_IN) as JwtSignOptions['expiresIn'],
         },
       }),
       inject: [ConfigService],

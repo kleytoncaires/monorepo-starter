@@ -54,12 +54,25 @@ export const authService = {
   },
 
   async validateResetToken(token: string): Promise<{ valid: boolean; email?: string }> {
-    const response = await api.get<{ valid: boolean; email?: string }>(`/auth/validate-reset-token/${token}`);
+    const response = await api.get<{ valid: boolean; email?: string }>(
+      `/auth/validate-reset-token/${token}`,
+    );
     return response.data;
   },
 
   async validateVerificationToken(token: string): Promise<{ valid: boolean; email?: string }> {
-    const response = await api.get<{ valid: boolean; email?: string }>(`/auth/validate-verification-token/${token}`);
+    const response = await api.get<{ valid: boolean; email?: string }>(
+      `/auth/validate-verification-token/${token}`,
+    );
     return response.data;
+  },
+
+  async checkSession(refreshToken: string): Promise<boolean> {
+    try {
+      const response = await api.post<{ valid: boolean }>('/auth/sessions/check', { refreshToken });
+      return response.data.valid;
+    } catch {
+      return false;
+    }
   },
 };

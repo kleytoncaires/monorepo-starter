@@ -50,6 +50,7 @@ describe('AuthService', () => {
     phone: null,
     avatarUrl: null,
     role: Role.USER,
+    isMaster: false,
     isActive: true,
     emailVerified: true,
     createdAt: new Date(),
@@ -144,6 +145,7 @@ describe('AuthService', () => {
         phone: null,
         avatarUrl: null,
         role: Role.USER,
+        isMaster: false,
         isActive: true,
         createdAt: new Date(),
       };
@@ -241,7 +243,9 @@ describe('AuthService', () => {
       };
       prismaService.refreshToken.findUnique.mockResolvedValue(storedToken);
       prismaService.refreshToken.delete.mockResolvedValue({});
-      jwtService.sign.mockReturnValueOnce('new-access-token').mockReturnValueOnce('new-refresh-token');
+      jwtService.sign
+        .mockReturnValueOnce('new-access-token')
+        .mockReturnValueOnce('new-refresh-token');
       prismaService.refreshToken.create.mockResolvedValue({});
 
       const result = await service.refreshTokens('valid-refresh-token');
@@ -263,7 +267,9 @@ describe('AuthService', () => {
       };
       prismaService.refreshToken.findUnique.mockResolvedValue(storedToken);
 
-      await expect(service.refreshTokens('expired-refresh-token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshTokens('expired-refresh-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 

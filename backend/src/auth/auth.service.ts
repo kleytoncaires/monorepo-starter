@@ -1,4 +1,10 @@
-import { Injectable, Logger, UnauthorizedException, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  UnauthorizedException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
@@ -138,7 +144,13 @@ export class AuthService {
       throw new UnauthorizedException(AUTH_ERROR_MESSAGES.ACCOUNT_DEACTIVATED);
     }
 
-    const tokens = await this.generateTokens(user.id, user.email, loginDto.rememberMe, ipAddress, userAgent);
+    const tokens = await this.generateTokens(
+      user.id,
+      user.email,
+      loginDto.rememberMe,
+      ipAddress,
+      userAgent,
+    );
 
     await this.auditService.create({
       userId: user.id,
@@ -207,9 +219,11 @@ export class AuthService {
     const frontendUrl = this.configService.get<string>('FRONTEND_URL', DEFAULT_FRONTEND_URL);
     const resetLink = `${frontendUrl}${FRONTEND_ROUTES.RESET_PASSWORD}?token=${token}`;
 
-    this.mailService.sendPasswordResetEmail(user.email, user.name, resetLink).catch((error: Error) => {
-      this.logger.error(`Failed to send password reset email to ${user.email}: ${error.message}`);
-    });
+    this.mailService
+      .sendPasswordResetEmail(user.email, user.name, resetLink)
+      .catch((error: Error) => {
+        this.logger.error(`Failed to send password reset email to ${user.email}: ${error.message}`);
+      });
   }
 
   async validateResetToken(token: string): Promise<{ valid: boolean; email?: string }> {
@@ -242,9 +256,10 @@ export class AuthService {
 
   private maskEmail(email: string): string {
     const [local, domain] = email.split('@');
-    const maskedLocal = local.length > 2
-      ? `${local[0]}${'*'.repeat(local.length - 2)}${local[local.length - 1]}`
-      : local[0] + '*';
+    const maskedLocal =
+      local.length > 2
+        ? `${local[0]}${'*'.repeat(local.length - 2)}${local[local.length - 1]}`
+        : local[0] + '*';
     return `${maskedLocal}@${domain}`;
   }
 
@@ -280,11 +295,16 @@ export class AuthService {
       userId: resetToken.userId,
       type: NotificationType.WARNING,
       title: 'Senha alterada',
-      message: 'Sua senha foi redefinida com sucesso. Se você não fez isso, entre em contato conosco.',
+      message:
+        'Sua senha foi redefinida com sucesso. Se você não fez isso, entre em contato conosco.',
     });
   }
 
-  async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -334,7 +354,11 @@ export class AuthService {
     });
   }
 
-  async revokeSession(userId: string, sessionId: string, currentRefreshToken?: string): Promise<void> {
+  async revokeSession(
+    userId: string,
+    sessionId: string,
+    currentRefreshToken?: string,
+  ): Promise<void> {
     const session = await this.prisma.refreshToken.findFirst({
       where: { id: sessionId, userId },
     });
@@ -378,6 +402,16 @@ export class AuthService {
     return result.count;
   }
 
+  async isSessionValid(refreshToken: string): Promise<boolean> {
+    const session = await this.prisma.refreshToken.findUnique({
+      where: { token: refreshToken },
+      select: { expiresAt: true },
+    });
+
+    if (!session) return false;
+    return session.expiresAt > new Date();
+  }
+
   private async generateTokens(
     userId: string,
     email: string,
@@ -387,12 +421,17 @@ export class AuthService {
   ): Promise<TokensDto> {
     const payload = { sub: userId, email };
 
-    const expiryDays = rememberMe ? REFRESH_TOKEN_REMEMBER_ME_EXPIRY_DAYS : REFRESH_TOKEN_EXPIRY_DAYS;
-    const jwtExpiresIn = rememberMe ? REMEMBER_ME_JWT_REFRESH_EXPIRES_IN : DEFAULT_JWT_REFRESH_EXPIRES_IN;
+    const expiryDays = rememberMe
+      ? REFRESH_TOKEN_REMEMBER_ME_EXPIRY_DAYS
+      : REFRESH_TOKEN_EXPIRY_DAYS;
+    const jwtExpiresIn = rememberMe
+      ? REMEMBER_ME_JWT_REFRESH_EXPIRES_IN
+      : DEFAULT_JWT_REFRESH_EXPIRES_IN;
 
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: (this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') || jwtExpiresIn) as JwtSignOptions['expiresIn'],
+      expiresIn: (this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') ||
+        jwtExpiresIn) as JwtSignOptions['expiresIn'],
     });
 
     const expiresAt = new Date();

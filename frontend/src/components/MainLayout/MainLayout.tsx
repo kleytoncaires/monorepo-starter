@@ -40,7 +40,8 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { ROLES } from '@/constants/roles.constants';
 import { ROUTES } from '@/constants/routes.constants';
 import { Breadcrumbs } from '@/components';
-import { notificationsService, Notification } from '@/services/notifications.service';
+import type { Notification } from '@/types';
+import { notificationsService } from '@/services/notifications.service';
 import { getUploadUrl } from '@/services/api';
 import { formatDate } from '@/utils/string.utils';
 

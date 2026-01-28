@@ -1,19 +1,19 @@
-import Box from '@mui/material/Box'
-import LinearProgress from '@mui/material/LinearProgress'
-import Typography from '@mui/material/Typography'
-import { Check, X } from 'lucide-react'
-import { PASSWORD_PATTERNS, PASSWORD_MIN_LENGTH } from '@/constants/validation.constants'
+import Box from '@mui/material/Box';
+import LinearProgress from '@mui/material/LinearProgress';
+import Typography from '@mui/material/Typography';
+import { Check, X } from 'lucide-react';
+import { PASSWORD_PATTERNS, PASSWORD_MIN_LENGTH } from '@/constants/validation.constants';
 
-import type { SxProps, Theme } from '@mui/material/styles'
+import type { SxProps, Theme } from '@mui/material/styles';
 
 interface PasswordStrengthIndicatorProps {
-  password: string
-  sx?: SxProps<Theme>
+  password: string;
+  sx?: SxProps<Theme>;
 }
 
 interface Requirement {
-  label: string
-  met: boolean
+  label: string;
+  met: boolean;
 }
 
 function getRequirements(password: string): Requirement[] {
@@ -23,22 +23,25 @@ function getRequirements(password: string): Requirement[] {
     { label: 'Minúscula', met: PASSWORD_PATTERNS.lowercase.test(password) },
     { label: 'Número', met: PASSWORD_PATTERNS.number.test(password) },
     { label: 'Especial', met: PASSWORD_PATTERNS.special.test(password) },
-  ]
+  ];
 }
 
 function getStrengthColor(score: number): 'error' | 'warning' | 'success' {
-  if (score <= 2) return 'error'
-  if (score <= 4) return 'warning'
-  return 'success'
+  if (score <= 2) return 'error';
+  if (score <= 4) return 'warning';
+  return 'success';
 }
 
-export default function PasswordStrengthIndicator({ password, sx }: PasswordStrengthIndicatorProps) {
-  if (!password) return null
+export default function PasswordStrengthIndicator({
+  password,
+  sx,
+}: PasswordStrengthIndicatorProps) {
+  if (!password) return null;
 
-  const requirements = getRequirements(password)
-  const score = requirements.filter(r => r.met).length
-  const progress = (score / 5) * 100
-  const color = getStrengthColor(score)
+  const requirements = getRequirements(password);
+  const score = requirements.filter(r => r.met).length;
+  const progress = (score / 5) * 100;
+  const color = getStrengthColor(score);
 
   return (
     <Box sx={{ mt: 1.5, ...sx }}>
@@ -70,5 +73,5 @@ export default function PasswordStrengthIndicator({ password, sx }: PasswordStre
         ))}
       </Box>
     </Box>
-  )
+  );
 }

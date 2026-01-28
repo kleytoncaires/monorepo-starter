@@ -1,28 +1,28 @@
-import { ReactNode } from 'react'
-import Dialog from '@mui/material/Dialog'
-import DialogContent from '@mui/material/DialogContent'
-import IconButton from '@mui/material/IconButton'
-import Typography from '@mui/material/Typography'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import CircularProgress from '@mui/material/CircularProgress'
-import Fade from '@mui/material/Fade'
-import { X, LucideIcon } from 'lucide-react'
+import { ReactNode } from 'react';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
+import Fade from '@mui/material/Fade';
+import { X, LucideIcon } from 'lucide-react';
 
 interface ModalProps {
-  open: boolean
-  onClose: () => void
-  title: string
-  subtitle?: string
-  icon?: LucideIcon
-  children: ReactNode
-  actions?: ReactNode
-  maxWidth?: 'xs' | 'sm' | 'md' | 'lg'
-  loading?: boolean
-  onConfirm?: () => void
-  confirmText?: string
-  confirmColor?: 'primary' | 'error' | 'secondary'
-  cancelText?: string
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  subtitle?: string;
+  icon?: LucideIcon;
+  children: ReactNode;
+  actions?: ReactNode;
+  maxWidth?: 'xs' | 'sm' | 'md' | 'lg';
+  loading?: boolean;
+  onConfirm?: () => void;
+  confirmText?: string;
+  confirmColor?: 'primary' | 'error' | 'secondary';
+  cancelText?: string;
 }
 
 export default function Modal({
@@ -86,7 +86,11 @@ export default function Modal({
               {title}
             </Typography>
             {subtitle && (
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.25 }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ display: 'block', mt: 0.25 }}
+              >
                 {subtitle}
               </Typography>
             )}
@@ -148,20 +152,20 @@ export default function Modal({
         </Box>
       )}
     </Dialog>
-  )
+  );
 }
 
 interface ConfirmModalProps {
-  open: boolean
-  onClose: () => void
-  onConfirm: () => void
-  title: string
-  subtitle?: string
-  message: ReactNode
-  icon?: LucideIcon
-  confirmText?: string
-  confirmColor?: 'primary' | 'error'
-  loading?: boolean
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  subtitle?: string;
+  message: ReactNode;
+  icon?: LucideIcon;
+  confirmText?: string;
+  confirmColor?: 'primary' | 'error';
+  loading?: boolean;
 }
 
 export function ConfirmModal({
@@ -222,7 +226,11 @@ export function ConfirmModal({
               {title}
             </Typography>
             {subtitle && (
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.25 }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ display: 'block', mt: 0.25 }}
+              >
                 {subtitle}
               </Typography>
             )}
@@ -282,5 +290,5 @@ export function ConfirmModal({
         </Button>
       </Box>
     </Dialog>
-  )
+  );
 }

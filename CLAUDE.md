@@ -15,7 +15,7 @@ Monorepo full-stack com NestJS no backend e React no frontend usando yarn worksp
 ## Stack Tecnológica
 
 - **Backend:** NestJS 11, PostgreSQL, Prisma ORM, autenticação JWT, Nodemailer
-- **Frontend:** React 19, Vite 7, Material-UI 7, React Router 7, React Hook Form, TanStack Query
+- **Frontend:** React 19, Vite 7, Material-UI 7, React Router 7, React Hook Form, TanStack Query, Zod
 - **Infraestrutura:** Docker, GitHub Actions CI/CD
 
 ## Estrutura do Projeto
@@ -146,6 +146,12 @@ frontend/src/
 │   ├── useDebounce.ts
 │   └── useUsers.ts
 │
+├── schemas/                         # ⭐ Schemas de validação (Zod)
+│   ├── index.ts                     # Re-exporta todos
+│   ├── common.schema.ts             # Schemas base (email, password, phone)
+│   ├── auth.schema.ts               # Login, registro, reset password
+│   └── profile.schema.ts            # Perfil, alteração de senha
+│
 ├── pages/                           # Páginas (por feature)
 │   ├── auth/
 │   ├── dashboard/
@@ -204,6 +210,7 @@ yarn lint:fix       # Corrige problemas de lint
 Todos os endpoints usam o prefixo `/v1/`.
 
 ### Autenticação (`/v1/auth`)
+
 - `POST /auth/register` - Cadastrar novo usuário
 - `POST /auth/verify-email` - Verificar email com token
 - `POST /auth/resend-verification` - Reenviar email de verificação
@@ -218,6 +225,7 @@ Todos os endpoints usam o prefixo `/v1/`.
 - `DELETE /auth/sessions` - Revogar todas exceto atual
 
 ### Usuários (`/v1/users`)
+
 - `GET /users/me` - Obter usuário atual
 - `GET /users/me/export` - Exportar dados pessoais (LGPD)
 - `GET /users` - Listar usuários (Admin)
@@ -226,10 +234,12 @@ Todos os endpoints usam o prefixo `/v1/`.
 - `DELETE /users/:id` - Deletar usuário (Admin)
 
 ### Auditoria (`/v1/audit-logs`) - Admin only
+
 - `GET /audit-logs` - Listar logs de auditoria
 - `GET /audit-logs/actions` - Listar tipos de ação
 
 ### Notificações (`/v1/notifications`)
+
 - `GET /notifications` - Listar notificações do usuário
 - `GET /notifications/unread-count` - Contador de não lidas
 - `PATCH /notifications/:id/read` - Marcar como lida
@@ -242,6 +252,7 @@ Todos os endpoints usam o prefixo `/v1/`.
 ### Backend (NestJS)
 
 **Estrutura de módulos:**
+
 ```
 modulo/
 ├── dto/
@@ -255,6 +266,7 @@ modulo/
 ```
 
 **Imports:**
+
 ```typescript
 // ✅ Usar barrel imports
 import { JwtAuthGuard, RolesGuard } from '../common/guards';
@@ -265,6 +277,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 ```
 
 **Padrões:**
+
 - Usar DTOs para validação de request/response
 - Usar guards para autenticação (`JwtAuthGuard`) e autorização (`RolesGuard`)
 - Usar decorators para padrões comuns (`@CurrentUser()`, `@Roles()`)
@@ -274,6 +287,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 ### Frontend (React)
 
 **Imports de componentes:**
+
 ```typescript
 // ✅ Usar barrel import
 import { DataTable, Pagination, PageHeader, Modal } from '@/components';
@@ -283,6 +297,7 @@ import DataTable from '@/components/DataTable/DataTable';
 ```
 
 **Imports de tipos:**
+
 ```typescript
 // ✅ Importar tipos da pasta types/
 import type { User, Session } from '@/types';
@@ -292,13 +307,30 @@ import type { PaginatedResponse } from '@/types/api';
 // ❌ Não importar tipos de um service para outro
 ```
 
+**Validação com Zod:**
+
+```typescript
+// ✅ Usar schemas da pasta schemas/
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginSchema, type LoginFormData } from '@/schemas';
+
+const { register, handleSubmit } = useForm<LoginFormData>({
+  resolver: zodResolver(loginSchema),
+});
+
+// ❌ Não usar rules inline do react-hook-form
+{...register('email', { required: 'Email obrigatório' })}
+```
+
 **Padrões:**
+
 - Uma pasta por componente com `index.ts`
-- Usar React Hook Form para formulários
+- Usar React Hook Form + Zod para formulários
 - Usar TanStack Query para gerenciamento de estado do servidor
 - Usar alias `@/` para imports (ex: `@/components`, `@/services`)
 - Cores do tema: usar `action.hover`, `divider`, `text.secondary` (não hardcodar `grey.100`)
 - Tipos compartilhados ficam em `types/`, não dentro de `services/`
+- Schemas de validação ficam em `schemas/`, com tipos inferidos via `z.infer`
 
 ### Nomenclatura
 
@@ -311,6 +343,7 @@ import type { PaginatedResponse } from '@/types/api';
 ## Banco de Dados
 
 ### Models
+
 - `User` - Usuários do sistema
 - `RefreshToken` - Tokens de refresh + dados de sessão
 - `PasswordResetToken` - Tokens de reset de senha
@@ -319,6 +352,7 @@ import type { PaginatedResponse } from '@/types/api';
 - `Notification` - Notificações in-app
 
 ### Credenciais padrão (seed)
+
 - Email: `admin@example.com`
 - Senha: `Admin@123`
 
@@ -346,24 +380,27 @@ import type { PaginatedResponse } from '@/types/api';
 
 ### Containers e Banco de Dados
 
-| Ambiente | Container | Database | Porta |
-|----------|-----------|----------|-------|
-| Dev | `monorepo-postgres-dev` | `monorepo_db` | 6543 |
-| Dev | `monorepo-mailpit` | - | 8025/1025 |
-| Prod | `monorepo-postgres` | `monorepo_db` | 6543 |
+| Ambiente | Container               | Database      | Porta     |
+| -------- | ----------------------- | ------------- | --------- |
+| Dev      | `monorepo-postgres-dev` | `monorepo_db` | 6543      |
+| Dev      | `monorepo-mailpit`      | -             | 8025/1025 |
+| Prod     | `monorepo-postgres`     | `monorepo_db` | 6543      |
 
 **Acesso ao banco (dev):**
+
 ```bash
 docker exec -it monorepo-postgres-dev psql -U postgres -d monorepo_db
 ```
 
 ### Desenvolvimento
+
 ```bash
 yarn db:up    # PostgreSQL + Mailpit
 yarn db:down  # Para containers
 ```
 
 ### Produção
+
 ```bash
 docker compose up -d --build
 ```
@@ -392,6 +429,7 @@ docker compose up -d --build
 ```
 
 **Variáveis importantes para produção:**
+
 ```env
 JWT_SECRET=<gerar-secret-forte>
 DATABASE_URL=postgresql://user:senha@postgres:5432/monorepo_db
@@ -416,11 +454,11 @@ docker pull ghcr.io/<usuario>/<repo>-frontend:main
 
 ### Opção 3: Plataformas PaaS
 
-| Plataforma | Como configurar |
-|------------|-----------------|
+| Plataforma  | Como configurar                                       |
+| ----------- | ----------------------------------------------------- |
 | **Railway** | Conecta ao GitHub, detecta Dockerfile automaticamente |
-| **Render** | Criar Web Service apontando para cada Dockerfile |
-| **Fly.io** | `fly launch` na pasta de cada serviço |
+| **Render**  | Criar Web Service apontando para cada Dockerfile      |
+| **Fly.io**  | `fly launch` na pasta de cada serviço                 |
 
 ### Checklist de Produção
 

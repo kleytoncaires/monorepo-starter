@@ -84,8 +84,22 @@ export default function App() {
       >
         <Route index element={<Navigate to={ROUTES.DASHBOARD} replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="users" element={<AdminRoute><UsersPage /></AdminRoute>} />
-        <Route path="audit-logs" element={<AdminRoute><AuditLogsPage /></AdminRoute>} />
+        <Route
+          path="users"
+          element={
+            <AdminRoute>
+              <UsersPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="audit-logs"
+          element={
+            <AdminRoute>
+              <AuditLogsPage />
+            </AdminRoute>
+          }
+        />
         <Route path="sessions" element={<SessionsPage />} />
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="profile" element={<ProfilePage />} />

@@ -38,7 +38,7 @@ function renderApp(initialRoute: string = ROUTES.LOGIN) {
           </ToastProvider>
         </ThemeProvider>
       </MemoryRouter>
-    </QueryClientProvider>
+    </QueryClientProvider>,
   );
 }
 

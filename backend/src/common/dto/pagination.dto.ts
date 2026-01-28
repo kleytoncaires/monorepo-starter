@@ -48,11 +48,7 @@ export interface PaginatedResponse<T> {
   meta: PaginationMeta;
 }
 
-export function createPaginationMeta(
-  total: number,
-  page: number,
-  limit: number,
-): PaginationMeta {
+export function createPaginationMeta(total: number, page: number, limit: number): PaginationMeta {
   const totalPages = Math.ceil(total / limit);
   return {
     total,

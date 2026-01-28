@@ -1,22 +1,22 @@
-import { createContext, useContext, useState, useCallback, ReactNode, SyntheticEvent } from 'react'
-import Snackbar from '@mui/material/Snackbar'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
-import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react'
+import { createContext, useContext, useState, useCallback, ReactNode, SyntheticEvent } from 'react';
+import Snackbar from '@mui/material/Snackbar';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react';
 
-type ToastSeverity = 'success' | 'error' | 'warning' | 'info'
+type ToastSeverity = 'success' | 'error' | 'warning' | 'info';
 
 interface ToastState {
-  open: boolean
-  message: string
-  severity: ToastSeverity
+  open: boolean;
+  message: string;
+  severity: ToastSeverity;
 }
 
 interface ToastContextType {
-  showToast: (message: string, severity?: ToastSeverity) => void
-  showSuccess: (message: string) => void
-  showError: (message: string) => void
+  showToast: (message: string, severity?: ToastSeverity) => void;
+  showSuccess: (message: string) => void;
+  showError: (message: string) => void;
 }
 
 const toastConfig = {
@@ -36,42 +36,42 @@ const toastConfig = {
     icon: Info,
     color: 'info.main' as const,
   },
-}
+};
 
-const ToastContext = createContext<ToastContextType | undefined>(undefined)
+const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<ToastState>({
     open: false,
     message: '',
     severity: 'info',
-  })
+  });
 
   const showToast = useCallback((message: string, severity: ToastSeverity = 'info') => {
-    setToast({ open: true, message, severity })
-  }, [])
+    setToast({ open: true, message, severity });
+  }, []);
 
   const showSuccess = useCallback(
     (message: string) => {
-      showToast(message, 'success')
+      showToast(message, 'success');
     },
-    [showToast]
-  )
+    [showToast],
+  );
 
   const showError = useCallback(
     (message: string) => {
-      showToast(message, 'error')
+      showToast(message, 'error');
     },
-    [showToast]
-  )
+    [showToast],
+  );
 
   const handleClose = useCallback((_?: SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') return
-    setToast(prev => ({ ...prev, open: false }))
-  }, [])
+    if (reason === 'clickaway') return;
+    setToast(prev => ({ ...prev, open: false }));
+  }, []);
 
-  const config = toastConfig[toast.severity]
-  const Icon = config.icon
+  const config = toastConfig[toast.severity];
+  const Icon = config.icon;
 
   return (
     <ToastContext.Provider value={{ showToast, showSuccess, showError }}>
@@ -113,13 +113,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         </Box>
       </Snackbar>
     </ToastContext.Provider>
-  )
+  );
 }
 
 export function useToast() {
-  const context = useContext(ToastContext)
+  const context = useContext(ToastContext);
   if (!context) {
-    throw new Error('useToast must be used within a ToastProvider')
+    throw new Error('useToast must be used within a ToastProvider');
   }
-  return context
+  return context;
 }

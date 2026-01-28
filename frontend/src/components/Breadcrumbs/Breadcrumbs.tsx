@@ -74,12 +74,7 @@ export default function Breadcrumbs() {
 
           if (isLast) {
             return (
-              <Typography
-                key={item.path}
-                variant="body2"
-                color="text.primary"
-                fontWeight={500}
-              >
+              <Typography key={item.path} variant="body2" color="text.primary" fontWeight={500}>
                 {item.label}
               </Typography>
             );

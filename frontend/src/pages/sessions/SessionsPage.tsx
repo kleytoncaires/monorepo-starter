@@ -31,7 +31,11 @@ export default function SessionsPage() {
   });
   const [revokeAllDialog, setRevokeAllDialog] = useState(false);
 
-  const { data: sessions, isLoading, error } = useQuery({
+  const {
+    data: sessions,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['sessions'],
     queryFn: sessionsService.getAll,
   });

@@ -8,7 +8,16 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Alert from '@mui/material/Alert';
 import Tooltip from '@mui/material/Tooltip';
-import { Bell, Trash2, Check, CheckCheck, Info, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import {
+  Bell,
+  Trash2,
+  Check,
+  CheckCheck,
+  Info,
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+} from 'lucide-react';
 import { PageHeader, TableSkeleton, EmptyState, Pagination } from '@/components';
 import { notificationsService } from '@/services/notifications.service';
 import { useToast } from '@/contexts/ToastContext';
@@ -93,11 +102,7 @@ export default function NotificationsPage() {
   if (isLoading) {
     return (
       <Box>
-        <PageHeader
-          icon={Bell}
-          title="Notificações"
-          description="Suas notificações e alertas"
-        />
+        <PageHeader icon={Bell} title="Notificações" description="Suas notificações e alertas" />
         <Card elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3 }}>
           <CardContent sx={{ p: { xs: 2, md: 3 } }}>
             <TableSkeleton rows={5} columns={3} />
@@ -109,11 +114,7 @@ export default function NotificationsPage() {
 
   return (
     <Box>
-      <PageHeader
-        icon={Bell}
-        title="Notificações"
-        description="Suas notificações e alertas"
-      />
+      <PageHeader icon={Bell} title="Notificações" description="Suas notificações e alertas" />
 
       {error && (
         <Alert severity="error" sx={{ borderRadius: 2, mb: 3 }}>
@@ -197,7 +198,11 @@ export default function NotificationsPage() {
                         <Typography variant="body2" color="text.secondary">
                           {notification.message}
                         </Typography>
-                        <Typography variant="caption" color="text.disabled" sx={{ mt: 1, display: 'block' }}>
+                        <Typography
+                          variant="caption"
+                          color="text.disabled"
+                          sx={{ mt: 1, display: 'block' }}
+                        >
                           {formatDate(notification.createdAt)}
                         </Typography>
                       </Box>

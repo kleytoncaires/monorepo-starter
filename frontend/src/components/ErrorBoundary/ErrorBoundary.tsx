@@ -1,36 +1,36 @@
-import { Component, ReactNode } from 'react'
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
+import { Component, ReactNode } from 'react';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
 
 interface ErrorBoundaryProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 interface ErrorBoundaryState {
-  hasError: boolean
-  error: Error | null
+  hasError: boolean;
+  error: Error | null;
 }
 
 export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
-    super(props)
-    this.state = { hasError: false, error: null }
+    super(props);
+    this.state = { hasError: false, error: null };
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error }
+    return { hasError: true, error };
   }
 
   handleReload = () => {
-    window.location.reload()
-  }
+    window.location.reload();
+  };
 
   handleGoHome = () => {
-    window.location.href = '/'
-  }
+    window.location.href = '/';
+  };
 
   render() {
     if (this.state.hasError) {
@@ -84,9 +84,9 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
             </CardContent>
           </Card>
         </Box>
-      )
+      );
     }
 
-    return this.props.children
+    return this.props.children;
   }
 }

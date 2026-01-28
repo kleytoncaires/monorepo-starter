@@ -1,12 +1,12 @@
-import { ElementType } from 'react'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import type { LucideIcon } from 'lucide-react'
+import { ElementType } from 'react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import type { LucideIcon } from 'lucide-react';
 
 interface PageHeaderProps {
-  icon: LucideIcon | ElementType
-  title: string
-  description: string
+  icon: LucideIcon | ElementType;
+  title: string;
+  description: string;
 }
 
 export default function PageHeader({ icon: Icon, title, description }: PageHeaderProps) {
@@ -24,5 +24,5 @@ export default function PageHeader({ icon: Icon, title, description }: PageHeade
         {description}
       </Typography>
     </Box>
-  )
+  );
 }

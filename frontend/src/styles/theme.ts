@@ -148,11 +148,12 @@ const getAutofillStyles = (mode: ThemeMode) => {
   const textColor = mode === 'light' ? 'inherit' : COLORS.white;
 
   return {
-    '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus, & input:-webkit-autofill:active': {
-      WebkitBoxShadow: `0 0 0 100px ${bgColor} inset !important`,
-      WebkitTextFillColor: `${textColor} !important`,
-      caretColor: `${textColor} !important`,
-    },
+    '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus, & input:-webkit-autofill:active':
+      {
+        WebkitBoxShadow: `0 0 0 100px ${bgColor} inset !important`,
+        WebkitTextFillColor: `${textColor} !important`,
+        caretColor: `${textColor} !important`,
+      },
   };
 };
 

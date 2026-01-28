@@ -11,7 +11,7 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <div>Test content</div>
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
     expect(screen.getByText('Test content')).toBeInTheDocument();
@@ -23,11 +23,13 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <ThrowError />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
     expect(screen.getByText('Algo deu errado')).toBeInTheDocument();
-    expect(screen.getByText('Ocorreu um erro inesperado. Por favor, tente novamente.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Ocorreu um erro inesperado. Por favor, tente novamente.'),
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Recarregar Página' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Ir para Início' })).toBeInTheDocument();
 
@@ -45,7 +47,7 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <ThrowError />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Recarregar Página' }));

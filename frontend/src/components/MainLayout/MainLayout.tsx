@@ -19,7 +19,22 @@ import Divider from '@mui/material/Divider';
 import Badge from '@mui/material/Badge';
 import Popover from '@mui/material/Popover';
 import Button from '@mui/material/Button';
-import { AlignJustify, LayoutDashboard, Users, User, LogOut, Sun, Moon, FileText, Smartphone, Bell, Info, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import {
+  AlignJustify,
+  LayoutDashboard,
+  Users,
+  User,
+  LogOut,
+  Sun,
+  Moon,
+  FileText,
+  Smartphone,
+  Bell,
+  Info,
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+} from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { ROLES } from '@/constants/roles.constants';
@@ -131,9 +146,7 @@ export default function MainLayout() {
     setMobileOpen(false);
   };
 
-  const visibleMenuItems = menuItems.filter(
-    item => !item.adminOnly || user?.role === ROLES.ADMIN
-  );
+  const visibleMenuItems = menuItems.filter(item => !item.adminOnly || user?.role === ROLES.ADMIN);
 
   const drawer = (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -237,7 +250,11 @@ export default function MainLayout() {
             <AlignJustify size={24} />
           </IconButton>
           <Box sx={{ alignItems: 'center', display: { xs: 'flex', sm: 'none' } }}>
-            <img src="/logo.svg" alt="Logo" style={{ height: 24, filter: 'brightness(0) invert(1)' }} />
+            <img
+              src="/logo.svg"
+              alt="Logo"
+              style={{ height: 24, filter: 'brightness(0) invert(1)' }}
+            />
           </Box>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ alignItems: 'center', display: 'flex', gap: 1.5 }}>
@@ -297,8 +314,11 @@ export default function MainLayout() {
                   </Box>
                 ) : (
                   recentNotifications.data.map((notif: Notification) => {
-                    const NotifIcon = NOTIFICATION_ICONS[notif.type as keyof typeof NOTIFICATION_ICONS] || Info;
-                    const notifColor = NOTIFICATION_COLORS[notif.type as keyof typeof NOTIFICATION_COLORS] || 'info.main';
+                    const NotifIcon =
+                      NOTIFICATION_ICONS[notif.type as keyof typeof NOTIFICATION_ICONS] || Info;
+                    const notifColor =
+                      NOTIFICATION_COLORS[notif.type as keyof typeof NOTIFICATION_COLORS] ||
+                      'info.main';
                     return (
                       <Box
                         key={notif.id}
@@ -323,7 +343,12 @@ export default function MainLayout() {
                           <Typography variant="body2" fontWeight={notif.read ? 400 : 600} noWrap>
                             {notif.title}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }} noWrap>
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ display: 'block' }}
+                            noWrap
+                          >
                             {notif.message}
                           </Typography>
                           <Typography variant="caption" color="text.disabled">
@@ -331,7 +356,15 @@ export default function MainLayout() {
                           </Typography>
                         </Box>
                         {!notif.read && (
-                          <Box sx={{ bgcolor: 'primary.main', borderRadius: '50%', height: 8, mt: 0.5, width: 8 }} />
+                          <Box
+                            sx={{
+                              bgcolor: 'primary.main',
+                              borderRadius: '50%',
+                              height: 8,
+                              mt: 0.5,
+                              width: 8,
+                            }}
+                          />
                         )}
                       </Box>
                     );
@@ -495,12 +528,29 @@ export default function MainLayout() {
           width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
         }}
       >
-        <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', maxWidth: 1200, mx: 'auto', width: '100%' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flex: 1,
+            flexDirection: 'column',
+            maxWidth: 1200,
+            mx: 'auto',
+            width: '100%',
+          }}
+        >
           <Breadcrumbs />
           <Box sx={{ flex: 1 }}>
             <Outlet />
           </Box>
-          <Box sx={{ borderTop: '1px solid', borderColor: 'divider', mt: 4, pt: 3, textAlign: 'center' }}>
+          <Box
+            sx={{
+              borderTop: '1px solid',
+              borderColor: 'divider',
+              mt: 4,
+              pt: 3,
+              textAlign: 'center',
+            }}
+          >
             <Typography
               variant="caption"
               sx={{

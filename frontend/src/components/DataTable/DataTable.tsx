@@ -1,30 +1,30 @@
-import { ReactNode } from 'react'
-import Box from '@mui/material/Box'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
-import Typography from '@mui/material/Typography'
-import CircularProgress from '@mui/material/CircularProgress'
+import { ReactNode } from 'react';
+import Box from '@mui/material/Box';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export interface Column<T> {
-  key: string
-  label: string
-  align?: 'left' | 'center' | 'right'
-  width?: number | string
-  render: (item: T) => ReactNode
+  key: string;
+  label: string;
+  align?: 'left' | 'center' | 'right';
+  width?: number | string;
+  render: (item: T) => ReactNode;
 }
 
 interface DataTableProps<T> {
-  columns: Column<T>[]
-  data: T[]
-  keyExtractor: (item: T) => string
-  loading?: boolean
-  emptyMessage?: string
-  onRowClick?: (item: T) => void
-  rowSx?: (item: T) => object
+  columns: Column<T>[];
+  data: T[];
+  keyExtractor: (item: T) => string;
+  loading?: boolean;
+  emptyMessage?: string;
+  onRowClick?: (item: T) => void;
+  rowSx?: (item: T) => object;
 }
 
 export default function DataTable<T>({
@@ -41,7 +41,7 @@ export default function DataTable<T>({
       <Box sx={{ alignItems: 'center', display: 'flex', justifyContent: 'center', py: 8 }}>
         <CircularProgress />
       </Box>
-    )
+    );
   }
 
   return (
@@ -115,5 +115,5 @@ export default function DataTable<T>({
         </TableBody>
       </Table>
     </TableContainer>
-  )
+  );
 }

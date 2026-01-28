@@ -1,4 +1,12 @@
-import { createContext, useContext, useState, useEffect, useMemo, useCallback, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  ReactNode,
+} from 'react';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { getTheme } from '@/styles/theme';
@@ -64,10 +72,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const theme = useMemo(() => getTheme(mode), [mode]);
 
-  const contextValue = useMemo(
-    () => ({ mode, toggleTheme, setMode }),
-    [mode, toggleTheme]
-  );
+  const contextValue = useMemo(() => ({ mode, toggleTheme, setMode }), [mode, toggleTheme]);
 
   return (
     <ThemeContext.Provider value={contextValue}>

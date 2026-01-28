@@ -1,9 +1,9 @@
-import Box from '@mui/material/Box'
-import Skeleton from '@mui/material/Skeleton'
+import Box from '@mui/material/Box';
+import Skeleton from '@mui/material/Skeleton';
 
 interface TableSkeletonProps {
-  rows?: number
-  columns?: number
+  rows?: number;
+  columns?: number;
 }
 
 export default function TableSkeleton({ rows = 5, columns = 5 }: TableSkeletonProps) {
@@ -19,12 +19,7 @@ export default function TableSkeleton({ rows = 5, columns = 5 }: TableSkeletonPr
         }}
       >
         {Array.from({ length: columns }).map((_, i) => (
-          <Skeleton
-            key={i}
-            variant="text"
-            width={i === 0 ? 120 : 80}
-            height={20}
-          />
+          <Skeleton key={i} variant="text" width={i === 0 ? 120 : 80} height={20} />
         ))}
       </Box>
       {Array.from({ length: rows }).map((_, rowIndex) => (
@@ -56,5 +51,5 @@ export default function TableSkeleton({ rows = 5, columns = 5 }: TableSkeletonPr
         </Box>
       ))}
     </Box>
-  )
+  );
 }

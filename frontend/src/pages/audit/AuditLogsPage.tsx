@@ -11,7 +11,14 @@ import Chip from '@mui/material/Chip';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { FileText, Calendar, User as UserIcon, Monitor } from 'lucide-react';
-import { PageHeader, DataTable, TableSkeleton, EmptyState, Pagination, type Column } from '@/components';
+import {
+  PageHeader,
+  DataTable,
+  TableSkeleton,
+  EmptyState,
+  Pagination,
+  type Column,
+} from '@/components';
 import { auditService, AuditLog, ACTION_LABELS } from '@/services/audit.service';
 import { formatDate } from '@/utils/string.utils';
 
@@ -76,9 +83,7 @@ export default function AuditLogsPage() {
       render: log => (
         <Box sx={{ alignItems: 'center', display: 'flex', gap: 1 }}>
           <UserIcon size={16} />
-          <Typography variant="body2">
-            {log.user?.name || 'Sistema'}
-          </Typography>
+          <Typography variant="body2">{log.user?.name || 'Sistema'}</Typography>
         </Box>
       ),
     },
@@ -235,11 +240,7 @@ export default function AuditLogsPage() {
             </>
           ) : (
             <>
-              <DataTable
-                columns={columns}
-                data={logs}
-                keyExtractor={log => log.id}
-              />
+              <DataTable columns={columns} data={logs} keyExtractor={log => log.id} />
               {meta && (
                 <Pagination
                   page={meta.page}

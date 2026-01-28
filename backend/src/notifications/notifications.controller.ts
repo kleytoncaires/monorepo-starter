@@ -1,4 +1,14 @@
-import { Controller, Get, Patch, Delete, Param, Query, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Patch,
+  Delete,
+  Param,
+  Query,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { NotificationsService, Notification } from './notifications.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -33,10 +43,7 @@ export class NotificationsController {
   @Patch(':id/read')
   @ApiOperation({ summary: 'Mark notification as read' })
   @ApiResponse({ status: 200, description: 'Notification marked as read' })
-  markAsRead(
-    @CurrentUser() user: { id: string },
-    @Param('id') id: string,
-  ): Promise<Notification> {
+  markAsRead(@CurrentUser() user: { id: string }, @Param('id') id: string): Promise<Notification> {
     return this.notificationsService.markAsRead(user.id, id);
   }
 
@@ -52,10 +59,7 @@ export class NotificationsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a notification' })
   @ApiResponse({ status: 204, description: 'Notification deleted' })
-  delete(
-    @CurrentUser() user: { id: string },
-    @Param('id') id: string,
-  ): Promise<void> {
+  delete(@CurrentUser() user: { id: string }, @Param('id') id: string): Promise<void> {
     return this.notificationsService.delete(user.id, id);
   }
 

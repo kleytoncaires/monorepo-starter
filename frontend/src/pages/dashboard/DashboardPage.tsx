@@ -1,14 +1,14 @@
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Grid from '@mui/material/Grid'
-import { LayoutDashboard, BarChart3, Activity, Bell } from 'lucide-react'
-import { useAuth } from '@/contexts/AuthContext'
-import { PageHeader } from '@/components'
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Grid from '@mui/material/Grid';
+import { LayoutDashboard, BarChart3, Activity, Bell } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { PageHeader } from '@/components';
 
 export default function DashboardPage() {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   const cards = [
     {
@@ -29,7 +29,7 @@ export default function DashboardPage() {
       title: 'Notificações',
       description: 'Você não tem novas notificações.',
     },
-  ]
+  ];
 
   return (
     <Box>
@@ -83,5 +83,5 @@ export default function DashboardPage() {
         ))}
       </Grid>
     </Box>
-  )
+  );
 }

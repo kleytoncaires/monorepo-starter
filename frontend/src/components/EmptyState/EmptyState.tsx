@@ -1,11 +1,11 @@
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import { LucideIcon } from 'lucide-react'
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import { LucideIcon } from 'lucide-react';
 
 interface EmptyStateProps {
-  icon: LucideIcon
-  title: string
-  description?: string
+  icon: LucideIcon;
+  title: string;
+  description?: string;
 }
 
 export default function EmptyState({ icon: Icon, title, description }: EmptyStateProps) {
@@ -42,5 +42,5 @@ export default function EmptyState({ icon: Icon, title, description }: EmptyStat
         </Typography>
       )}
     </Box>
-  )
+  );
 }

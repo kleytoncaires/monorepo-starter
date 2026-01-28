@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../config/prisma.service';
-import { PaginationQueryDto, PaginatedResponse, createPaginationMeta } from '../common/dto/pagination.dto';
+import {
+  PaginationQueryDto,
+  PaginatedResponse,
+  createPaginationMeta,
+} from '../common/dto/pagination.dto';
 import { NotificationType } from './notifications.constants';
 import { NotificationDto, CreateNotificationDto } from './dto';
 
@@ -24,7 +28,10 @@ export class NotificationsService {
     });
   }
 
-  async findAllForUser(userId: string, query: PaginationQueryDto): Promise<PaginatedResponse<NotificationDto>> {
+  async findAllForUser(
+    userId: string,
+    query: PaginationQueryDto,
+  ): Promise<PaginatedResponse<NotificationDto>> {
     const { page = 1, limit = 10 } = query;
     const skip = (page - 1) * limit;
 

@@ -81,10 +81,7 @@ export default function Pagination({
           >
             <ChevronLeft size={18} />
           </IconButton>
-          <Typography
-            variant="body2"
-            sx={{ mx: 1, minWidth: 80, textAlign: 'center' }}
-          >
+          <Typography variant="body2" sx={{ mx: 1, minWidth: 80, textAlign: 'center' }}>
             Página {page} de {totalPages || 1}
           </Typography>
           <IconButton

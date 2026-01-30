@@ -213,10 +213,16 @@ monorepo-starter/
   - Validação de magic bytes (segurança)
   - Limite de 5MB
 
+- ✅ **Segurança**
+  - Helmet.js (security headers)
+  - Account lockout (bloqueio após 5 tentativas)
+  - Rate limiting por endpoint
+  - Invalidação de sessões ao trocar/resetar senha
+  - Security headers no Nginx
+
 - ✅ **Compliance**
   - Exportação de dados (LGPD)
   - Exclusão de conta própria
-  - Rate limiting
 
 ## Endpoints da API
 

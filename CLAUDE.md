@@ -370,6 +370,10 @@ const { register, handleSubmit } = useForm<LoginFormData>({
 - ✅ Paginação
 - ✅ Rate limiting
 - ✅ API versionada (/v1)
+- ✅ Helmet.js (security headers no backend)
+- ✅ Account lockout (bloqueio após 5 tentativas de login)
+- ✅ Invalidação de sessões ao trocar/resetar senha
+- ✅ Security headers no Nginx (X-Frame-Options, CSP, etc.)
 
 ## Emails em Desenvolvimento (Mailpit)
 

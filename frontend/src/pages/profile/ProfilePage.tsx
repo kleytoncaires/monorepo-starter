@@ -128,6 +128,7 @@ export default function ProfilePage() {
       await api.post('/auth/change-password', {
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
+        refreshToken: localStorage.getItem('refreshToken'),
       });
       showSuccess('Senha alterada com sucesso!');
       resetPassword();

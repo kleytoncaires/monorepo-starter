@@ -30,6 +30,7 @@ import {
   THROTTLE_AUTH_REGISTER_LIMIT,
   THROTTLE_AUTH_LOGIN_LIMIT,
   THROTTLE_AUTH_FORGOT_PASSWORD_LIMIT,
+  THROTTLE_AUTH_VALIDATE_TOKEN_LIMIT,
 } from '../common/constants/throttle.constants';
 
 @ApiTags('auth')
@@ -49,6 +50,7 @@ export class AuthController {
   }
 
   @Post('verify-email')
+  @Throttle({ short: { limit: THROTTLE_AUTH_FORGOT_PASSWORD_LIMIT, ttl: THROTTLE_AUTH_TTL } })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Verify email with token' })
   @ApiResponse({ status: 204, description: 'Email verified successfully' })
@@ -116,6 +118,7 @@ export class AuthController {
   }
 
   @Get('validate-reset-token/:token')
+  @Throttle({ short: { limit: THROTTLE_AUTH_VALIDATE_TOKEN_LIMIT, ttl: THROTTLE_AUTH_TTL } })
   @ApiOperation({ summary: 'Validate password reset token' })
   @ApiResponse({ status: 200, description: 'Token validation result' })
   async validateResetToken(@Param('token') token: string) {
@@ -123,6 +126,7 @@ export class AuthController {
   }
 
   @Get('validate-verification-token/:token')
+  @Throttle({ short: { limit: THROTTLE_AUTH_VALIDATE_TOKEN_LIMIT, ttl: THROTTLE_AUTH_TTL } })
   @ApiOperation({ summary: 'Validate email verification token' })
   @ApiResponse({ status: 200, description: 'Token validation result' })
   async validateVerificationToken(@Param('token') token: string) {
@@ -130,6 +134,7 @@ export class AuthController {
   }
 
   @Post('reset-password')
+  @Throttle({ short: { limit: THROTTLE_AUTH_FORGOT_PASSWORD_LIMIT, ttl: THROTTLE_AUTH_TTL } })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Reset password with token' })
   @ApiResponse({ status: 204, description: 'Password reset successfully' })
@@ -153,6 +158,7 @@ export class AuthController {
       user.id,
       changePasswordDto.currentPassword,
       changePasswordDto.newPassword,
+      changePasswordDto.refreshToken,
     );
   }
 

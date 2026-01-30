@@ -8,4 +8,6 @@ export const AUTH_ERROR_MESSAGES = {
   INVALID_RESET_TOKEN: 'Invalid or expired reset token',
   USER_NOT_FOUND: 'User not found',
   CURRENT_PASSWORD_INCORRECT: 'Current password is incorrect',
+  ACCOUNT_LOCKED:
+    'Account temporarily locked due to too many failed attempts. Try again later',
 } as const;

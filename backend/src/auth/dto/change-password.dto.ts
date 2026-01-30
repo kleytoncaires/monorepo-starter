@@ -1,5 +1,5 @@
-import { IsNotEmpty, IsString, MinLength, MaxLength, Matches } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsOptional, IsString, MinLength, MaxLength, Matches } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ChangePasswordDto {
   @ApiProperty({ description: 'Current password' })
@@ -19,4 +19,9 @@ export class ChangePasswordDto {
     message: 'Senha deve conter pelo menos um caractere especial (!@#$%^&*)',
   })
   newPassword: string;
+
+  @ApiPropertyOptional({ description: 'Current refresh token to preserve this session' })
+  @IsOptional()
+  @IsString()
+  refreshToken?: string;
 }

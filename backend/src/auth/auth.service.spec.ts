@@ -53,6 +53,8 @@ describe('AuthService', () => {
     isMaster: false,
     isActive: true,
     emailVerified: true,
+    failedLoginAttempts: 0,
+    lockedUntil: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };

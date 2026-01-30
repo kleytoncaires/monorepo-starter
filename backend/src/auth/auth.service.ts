@@ -17,7 +17,13 @@ import { NotificationsService, NotificationType } from '../notifications/notific
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { TokensDto } from './dto/tokens.dto';
-import { AUTH_ERROR_MESSAGES, DEFAULT_FRONTEND_URL, FRONTEND_ROUTES } from '../common/constants';
+import {
+  AUTH_ERROR_MESSAGES,
+  DEFAULT_FRONTEND_URL,
+  FRONTEND_ROUTES,
+  MAX_FAILED_LOGIN_ATTEMPTS,
+  ACCOUNT_LOCK_DURATION_MINUTES,
+} from '../common/constants';
 
 const SALT_ROUNDS = 10;
 const PASSWORD_RESET_TOKEN_EXPIRY_HOURS = 1;
@@ -131,8 +137,47 @@ export class AuthService {
       throw new UnauthorizedException(AUTH_ERROR_MESSAGES.INVALID_CREDENTIALS);
     }
 
+    if (user.lockedUntil && user.lockedUntil > new Date()) {
+      throw new UnauthorizedException(AUTH_ERROR_MESSAGES.ACCOUNT_LOCKED);
+    }
+
+    if (user.lockedUntil && user.lockedUntil <= new Date()) {
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { failedLoginAttempts: 0, lockedUntil: null },
+      });
+    }
+
     const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
     if (!isPasswordValid) {
+      const failedAttempts = user.failedLoginAttempts + 1;
+
+      if (failedAttempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
+        const lockedUntil = new Date();
+        lockedUntil.setMinutes(lockedUntil.getMinutes() + ACCOUNT_LOCK_DURATION_MINUTES);
+
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: { failedLoginAttempts: failedAttempts, lockedUntil },
+        });
+
+        await this.auditService.create({
+          userId: user.id,
+          action: AuditAction.ACCOUNT_LOCKED,
+          entity: 'User',
+          entityId: user.id,
+          ipAddress,
+          userAgent,
+        });
+
+        throw new UnauthorizedException(AUTH_ERROR_MESSAGES.ACCOUNT_LOCKED);
+      }
+
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { failedLoginAttempts: failedAttempts },
+      });
+
       throw new UnauthorizedException(AUTH_ERROR_MESSAGES.INVALID_CREDENTIALS);
     }
 
@@ -142,6 +187,13 @@ export class AuthService {
 
     if (!user.isActive) {
       throw new UnauthorizedException(AUTH_ERROR_MESSAGES.ACCOUNT_DEACTIVATED);
+    }
+
+    if (user.failedLoginAttempts > 0) {
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { failedLoginAttempts: 0, lockedUntil: null },
+      });
     }
 
     const tokens = await this.generateTokens(
@@ -284,6 +336,10 @@ export class AuthService {
       where: { id: resetToken.id },
     });
 
+    await this.prisma.refreshToken.deleteMany({
+      where: { userId: resetToken.userId },
+    });
+
     await this.auditService.create({
       userId: resetToken.userId,
       action: AuditAction.PASSWORD_RESET,
@@ -304,6 +360,7 @@ export class AuthService {
     userId: string,
     currentPassword: string,
     newPassword: string,
+    currentRefreshToken?: string,
   ): Promise<void> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -324,6 +381,12 @@ export class AuthService {
       where: { id: userId },
       data: { password: hashedPassword },
     });
+
+    const deleteFilter: { userId: string; token?: { not: string } } = { userId };
+    if (currentRefreshToken) {
+      deleteFilter.token = { not: currentRefreshToken };
+    }
+    await this.prisma.refreshToken.deleteMany({ where: deleteFilter });
 
     await this.auditService.create({
       userId,

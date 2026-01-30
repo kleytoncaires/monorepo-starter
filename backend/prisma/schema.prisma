@@ -17,9 +17,11 @@ model User {
   role          Role     @default(USER)
   isMaster      Boolean  @default(false)
   isActive      Boolean  @default(true)
-  emailVerified Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  emailVerified       Boolean   @default(false)
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   tokens                  RefreshToken[]
   passwordResetTokens     PasswordResetToken[]

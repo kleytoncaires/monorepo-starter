@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { DEFAULT_FRONTEND_URL } from './common/constants';
 import { HttpExceptionFilter } from './common/filters';
@@ -11,6 +12,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.getHttpAdapter().getInstance().set('trust proxy', true);
+
+  app.use(helmet());
 
   app.enableCors({
     origin: process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL,

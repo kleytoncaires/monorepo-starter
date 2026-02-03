@@ -29,6 +29,8 @@ COPY --from=builder /app/backend/node_modules ./backend_modules
 COPY --from=builder /app/backend/package.json ./
 COPY --from=builder /app/backend/prisma ./prisma
 
+RUN mkdir -p /app/uploads && chown nestjs:nodejs /app/uploads
+
 USER nestjs
 
 EXPOSE 9000

@@ -43,7 +43,9 @@ async function bootstrap() {
   await app.listen(port);
 
   const logger = new Logger('Bootstrap');
+  const corsOrigin = process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL;
   logger.log(`Application is running on: http://localhost:${port}`);
+  logger.log(`CORS origin: ${corsOrigin}`);
   logger.log(`Swagger documentation: http://localhost:${port}/api/docs`);
 }
 

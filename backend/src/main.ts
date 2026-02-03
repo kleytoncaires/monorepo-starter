@@ -13,7 +13,9 @@ async function bootstrap() {
 
   app.getHttpAdapter().getInstance().set('trust proxy', true);
 
-  app.use(helmet());
+  app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  }));
 
   app.enableCors({
     origin: process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL,

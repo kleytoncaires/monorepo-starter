@@ -38,6 +38,8 @@ services:
       MAIL_USER: ${MAIL_USER}
       MAIL_PASS: ${MAIL_PASS}
       MAIL_FROM: ${MAIL_FROM}
+    volumes:
+      - uploads_data:/app/uploads
     ports:
       - "${BACKEND_PORT:-9000}:${BACKEND_PORT:-9000}"
     networks:
@@ -61,6 +63,7 @@ services:
 
 volumes:
   postgres_data:
+  uploads_data:
 
 networks:
   monorepo-network:

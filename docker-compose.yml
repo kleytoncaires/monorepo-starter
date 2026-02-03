@@ -54,7 +54,7 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:9000}
+        VITE_API_URL: ${VITE_API_URL:-}
     container_name: monorepo-frontend
     ports:
       - "${FRONTEND_PORT:-4200}:80"

@@ -12,6 +12,8 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "${POSTGRES_PORT:-6543}:5432"
+    networks:
+      - monorepo-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 5s
@@ -40,6 +42,8 @@ services:
       MAIL_FROM: ${MAIL_FROM}
     ports:
       - "${BACKEND_PORT:-9000}:${BACKEND_PORT:-9000}"
+    networks:
+      - monorepo-network
     depends_on:
       postgres:
         condition: service_healthy
@@ -54,9 +58,15 @@ services:
     container_name: monorepo-frontend
     ports:
       - "${FRONTEND_PORT:-4200}:80"
+    networks:
+      - monorepo-network
     depends_on:
       - backend
     restart: unless-stopped
 
 volumes:
   postgres_data:
+
+networks:
+  monorepo-network:
+    driver: bridge

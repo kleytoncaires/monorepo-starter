@@ -6,5 +6,5 @@ export const FRONTEND_ROUTES = {
 } as const;
 
 export const ASSETS = {
-  LOGO: '/logo.svg',
+  LOGO: '/logo.png',
 } as const;
